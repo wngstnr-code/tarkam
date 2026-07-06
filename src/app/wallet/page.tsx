@@ -38,7 +38,7 @@ export default function WalletPage() {
   return (
     <main className="mx-auto max-w-md space-y-6 p-6 pt-12">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dompet</h1>
+        <h1 className="font-display text-3xl">Dompet</h1>
         <Badge variant="outline">Self-custodial · WDK</Badge>
       </div>
 
@@ -88,10 +88,6 @@ export default function WalletPage() {
           )}
         </CardContent>
       </Card>
-
-      <Button variant="ghost" className="w-full" onClick={() => router.push("/")}>
-        ← Kembali ke turnamen
-      </Button>
 
       <UnlockDialog
         open={showUnlock}

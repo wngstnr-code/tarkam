@@ -61,7 +61,7 @@ export function CreateWalletFlow() {
       return;
     }
     setSeedPhrase(null); // buang plaintext dari state
-    router.push("/wallet");
+    router.push("/");
   }
 
   if (step === "password") {

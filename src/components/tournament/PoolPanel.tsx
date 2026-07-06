@@ -1,54 +1,70 @@
 "use client";
 
 import { QRCodeSVG } from "qrcode.react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddressChip } from "@/components/common/AddressChip";
 import { usePoolBalance } from "@/hooks/usePoolBalance";
 import { formatUSDT, parseUSDT } from "@/lib/format";
 import { addressUrl } from "@/lib/chain/config";
 import type { Tournament } from "@/types";
 
+/** Panel brankas ala papan skor: panel hijau lapangan gelap + garis lapangan. */
 export function PoolPanel({ tournament }: { tournament: Tournament }) {
   const { balance, error } = usePoolBalance(tournament.poolAddress);
-  const target =
-    parseUSDT(tournament.entryFee) * BigInt(tournament.teamCount);
+  const target = parseUSDT(tournament.entryFee) * BigInt(tournament.teamCount);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Brankas hadiah (pool)</CardTitle>
-        <CardDescription>
-          Alamat publik — siapa pun bisa cek saldonya di explorer, tanpa akun.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex items-start gap-4">
-        <div className="rounded-md border bg-white p-2">
-          <QRCodeSVG value={tournament.poolAddress} size={96} />
+    <section
+      aria-label="Brankas hadiah"
+      className="relative overflow-hidden rounded-xl bg-[#0e3d20] p-5 text-white shadow-md"
+    >
+      {/* Garis lapangan: lingkaran tengah + garis tengah, dekoratif */}
+      <svg
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.08]"
+        viewBox="0 0 400 160"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <g fill="none" stroke="white" strokeWidth="1.5">
+          <line x1="200" y1="0" x2="200" y2="160" />
+          <circle cx="200" cy="80" r="42" />
+          <circle cx="200" cy="80" r="3" fill="white" />
+          <rect x="-40" y="30" width="80" height="100" />
+          <rect x="360" y="30" width="80" height="100" />
+        </g>
+      </svg>
+
+      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="shrink-0 self-center rounded-lg bg-white p-2 sm:self-auto">
+          <QRCodeSVG value={tournament.poolAddress} size={104} />
         </div>
-        <div className="space-y-2">
-          <p className="text-3xl font-bold tabular-nums">
-            {balance === null ? "—" : formatUSDT(balance)}{" "}
-            <span className="text-base font-normal text-muted-foreground">
+        <div className="min-w-0 space-y-2">
+          <p className="font-display text-sm text-white/70">
+            Brankas Hadiah — saldo pot live on-chain
+          </p>
+          <p className="font-mono text-4xl font-bold tabular-nums text-[#7fe0a7]">
+            {balance === null ? "—" : formatUSDT(balance)}
+            <span className="ml-2 text-base font-normal text-white/60">
               / {formatUSDT(target)} USDT
             </span>
           </p>
-          <AddressChip address={tournament.poolAddress} />
-          <p className="text-xs text-muted-foreground">
-            Saldo live dari chain (refresh tiap 15 dtk).{" "}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <AddressChip address={tournament.poolAddress} light />
             <a
-              className="underline"
+              className="text-white/70 underline underline-offset-2 hover:text-white focus-visible:ring-2 focus-visible:ring-white/60"
               href={addressUrl(tournament.poolAddress)}
               target="_blank"
               rel="noreferrer"
             >
               Audit sendiri di Etherscan →
             </a>
+          </div>
+          <p className="text-xs text-white/50">
+            Alamat publik — siapa pun bisa memantau tanpa akun. Refresh tiap 15
+            detik.
           </p>
-          {error && (
-            <p className="text-xs text-destructive">RPC error: {error}</p>
-          )}
+          {error && <p className="text-xs text-amber-300">RPC error: {error}</p>}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

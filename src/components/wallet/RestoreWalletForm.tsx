@@ -24,7 +24,7 @@ export function RestoreWalletForm() {
     setBusy(true);
     try {
       await restore(phrase, password);
-      router.push("/wallet");
+      router.push("/");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {

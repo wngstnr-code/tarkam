@@ -98,7 +98,7 @@ export default function TournamentDetailPage({
           <Link href="/" className="text-sm text-muted-foreground hover:underline">
             ← Semua turnamen
           </Link>
-          <h1 className="text-2xl font-bold">{tournament.name}</h1>
+          <h1 className="font-display text-3xl">{tournament.name}</h1>
           <p className="text-sm text-muted-foreground">
             {tournament.teamCount} tim · {tournament.entryFee} USDT/tim · sistem
             gugur

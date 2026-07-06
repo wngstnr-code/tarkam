@@ -10,6 +10,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+  --font-display: var(--font-anton);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,30 +49,31 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Brand Tarkam (brand.md): merah Indonesia + putih + hijau lapangan */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: #fafaf8;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #ce1126;
+  --primary-foreground: #ffffff;
+  --secondary: #1b7a3d;
+  --secondary-foreground: #ffffff;
+  --muted: #f1f1ec;
+  --muted-foreground: #66665f;
+  --accent: #eaf4ee;
+  --accent-foreground: #14522a;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --border: #e5e5df;
+  --input: #e5e5df;
+  --ring: #ce1126;
+  --chart-1: #ce1126;
+  --chart-2: #1b7a3d;
+  --chart-3: #f2b705;
+  --chart-4: #0e3d20;
+  --chart-5: #1a1a1a;
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -83,30 +85,31 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Dark = nuansa pitch (hijau lapangan malam), bukan abu-abu netral */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: #0c1f13;
+  --foreground: #f2f2ee;
+  --card: #12291a;
+  --card-foreground: #f2f2ee;
+  --popover: #12291a;
+  --popover-foreground: #f2f2ee;
+  --primary: #e63950;
+  --primary-foreground: #ffffff;
+  --secondary: #2ea45c;
+  --secondary-foreground: #06170c;
+  --muted: #1a3624;
+  --muted-foreground: #9db3a5;
+  --accent: #1a3624;
+  --accent-foreground: #cfe8d8;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --ring: #e63950;
+  --chart-1: #e63950;
+  --chart-2: #2ea45c;
+  --chart-3: #f2b705;
+  --chart-4: #cfe8d8;
+  --chart-5: #f2f2ee;
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -123,8 +126,19 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Pola batik kawung sangat halus di seluruh latar */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%231a1a1a' stroke-opacity='0.045' stroke-width='1.1'%3E%3Cellipse cx='28' cy='7' rx='8' ry='12'/%3E%3Cellipse cx='28' cy='49' rx='8' ry='12'/%3E%3Cellipse cx='7' cy='28' rx='12' ry='8'/%3E%3Cellipse cx='49' cy='28' rx='12' ry='8'/%3E%3Ccircle cx='28' cy='28' r='2.2'/%3E%3Ccircle cx='0' cy='0' r='2.2'/%3E%3Ccircle cx='56' cy='0' r='2.2'/%3E%3Ccircle cx='0' cy='56' r='2.2'/%3E%3Ccircle cx='56' cy='56' r='2.2'/%3E%3C/g%3E%3C/svg%3E");
+    background-attachment: fixed;
+  }
+  .dark body {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.05' stroke-width='1.1'%3E%3Cellipse cx='28' cy='7' rx='8' ry='12'/%3E%3Cellipse cx='28' cy='49' rx='8' ry='12'/%3E%3Cellipse cx='7' cy='28' rx='12' ry='8'/%3E%3Cellipse cx='49' cy='28' rx='12' ry='8'/%3E%3Ccircle cx='28' cy='28' r='2.2'/%3E%3Ccircle cx='0' cy='0' r='2.2'/%3E%3Ccircle cx='56' cy='0' r='2.2'/%3E%3Ccircle cx='0' cy='56' r='2.2'/%3E%3Ccircle cx='56' cy='56' r='2.2'/%3E%3C/g%3E%3C/svg%3E");
   }
   html {
     @apply font-sans;
+  }
+  /* Judul ala papan skor / jersey */
+  .font-display {
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 }

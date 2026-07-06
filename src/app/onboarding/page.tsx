@@ -18,7 +18,7 @@ export default function OnboardingPage() {
   return (
     <main className="mx-auto max-w-md space-y-6 p-6 pt-12">
       <div className="space-y-1 text-center">
-        <h1 className="text-2xl font-bold">Dompet kamu, kunci kamu</h1>
+        <h1 className="font-display text-3xl">Dompet kamu, kunci kamu</h1>
         <p className="text-sm text-muted-foreground">
           Seed phrase dibuat dan tersimpan terenkripsi di device ini — tidak
           pernah menyentuh server mana pun.
