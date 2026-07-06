@@ -4,7 +4,9 @@ export const RPC_URL =
   process.env.NEXT_PUBLIC_RPC_URL ?? "https://sepolia.drpc.org";
 
 /** Alamat kontrak MockUSDT (ERC-20, 6 desimal) di Sepolia. */
-export const USDT_ADDRESS = process.env.NEXT_PUBLIC_USDT_ADDRESS ?? "";
+export const USDT_ADDRESS =
+  process.env.NEXT_PUBLIC_USDT_ADDRESS ??
+  "0x0304dda2A4F3B6Daa28ad87CacEeea4B634F5a28"; // MockUSDT (lihat contracts/deploy-notes.md)
 
 export const USDT_DECIMALS = 6;
 
