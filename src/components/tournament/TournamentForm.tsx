@@ -70,8 +70,10 @@ export function TournamentForm() {
   if (created) {
     return (
       <div className="space-y-4">
-        <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm dark:border-amber-700 dark:bg-amber-950">
-          <p className="font-semibold">Backup seed brankas pool — SEKALI ini saja</p>
+        <div className="border-l-4 border-chart-3 bg-chart-3/15 p-3 text-sm">
+          <p className="font-semibold tracking-wide uppercase">
+            ⚠️ Backup seed brankas pool — sekali ini saja
+          </p>
           <p className="text-muted-foreground">
             Brankas hadiah turnamen ini adalah dompet self-custodial. Catat 12
             kata di bawah; tanpa ini hadiah tidak bisa dicairkan bila device
@@ -80,7 +82,9 @@ export function TournamentForm() {
         </div>
         <SeedPhraseReveal seedPhrase={created.poolSeed} />
         <Button
+          variant="secondary"
           className="w-full"
+          size="lg"
           onClick={() => router.push(`/tournament/${created.id}`)}
         >
           Sudah kucatat — buka turnamen
@@ -117,6 +121,7 @@ export function TournamentForm() {
           <Input
             id="tfee"
             inputMode="decimal"
+            className="text-right font-mono text-secondary tabular-nums"
             value={entryFee}
             onChange={(e) => setEntryFee(e.target.value)}
           />
@@ -132,6 +137,7 @@ export function TournamentForm() {
             <Label>{label as string} (USDT)</Label>
             <Input
               inputMode="decimal"
+              className="text-right font-mono text-secondary tabular-nums"
               value={value as string}
               onChange={(e) =>
                 (setter as (v: string) => void)(e.target.value)
@@ -155,7 +161,7 @@ export function TournamentForm() {
         </p>
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
-      <Button onClick={handleCreate} disabled={busy} className="w-full">
+      <Button onClick={handleCreate} disabled={busy} size="lg" className="w-full">
         {busy ? "Membuat brankas pool…" : "Buat turnamen + brankas pool"}
       </Button>
     </div>

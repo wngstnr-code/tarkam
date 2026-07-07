@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useWdkWallet } from "@/hooks/useWdkWallet";
 import { SeedPhraseReveal } from "./SeedPhraseReveal";
 
-type Step = "password" | "backup" | "confirm";
+type Step = "password" | "backup" | "confirm" | "done";
 
 export function CreateWalletFlow() {
   const router = useRouter();
@@ -61,7 +61,8 @@ export function CreateWalletFlow() {
       return;
     }
     setSeedPhrase(null); // buang plaintext dari state
-    router.push("/");
+    setError(null);
+    setStep("done");
   }
 
   if (step === "password") {
@@ -143,6 +144,40 @@ export function CreateWalletFlow() {
           <Button onClick={handleConfirm} className="flex-1">
             Konfirmasi backup
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === "done") {
+    return (
+      <div className="-m-4 overflow-hidden rounded-xl">
+        {/* Kartu papan skor: strip gelap atas/bawah + tengah putih */}
+        <div className="flex items-center justify-between bg-foreground px-4 py-2 text-background">
+          <span className="font-display text-sm tracking-wider">Tarkam</span>
+          <span className="font-mono text-xs tracking-widest uppercase">
+            Status: aman
+          </span>
+        </div>
+        <div className="flex flex-col items-center gap-4 px-6 py-10 text-center">
+          <div className="flex size-24 items-center justify-center rounded-full border-2 border-foreground bg-card shadow-hard-sm">
+            <span className="text-5xl text-secondary" aria-hidden>
+              ✓
+            </span>
+          </div>
+          <h2 className="font-display text-3xl leading-none">Dompet siap!</h2>
+          <p className="max-w-xs text-sm text-muted-foreground">
+            Kunci aksesmu tersimpan terenkripsi di browser ini. Jangan pernah
+            bagikan seed phrase kepada siapa pun.
+          </p>
+          <Button className="w-full" size="lg" onClick={() => router.push("/")}>
+            Masuk ke dashboard →
+          </Button>
+        </div>
+        <div className="border-t border-foreground/20 bg-muted px-4 py-1.5 text-center">
+          <span className="text-[10px] tracking-widest text-muted-foreground uppercase">
+            Sepak bola akar rumput
+          </span>
         </div>
       </div>
     );

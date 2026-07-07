@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect } from "react";
 import { useWalletStore } from "@/store/useWalletStore";
-import { getWalletMeta, saveWalletMeta } from "@/lib/db/repo";
-import { getUsdtBalance } from "@/lib/wallet/balance";
+import { getWalletMeta, saveWalletMeta, forgetWallet } from "@/lib/db/repo";
+import { getUsdtBalance, getNativeBalance } from "@/lib/wallet/balance";
 import { decryptSeed } from "@/lib/wallet/crypto";
 import { createWallet } from "@/lib/wallet/createWallet";
 import { restoreWallet } from "@/lib/wallet/restoreWallet";
@@ -13,8 +13,16 @@ import { restoreWallet } from "@/lib/wallet/restoreWallet";
  * Seed hanya hidup sesaat di memori saat dibutuhkan (unlock → pakai → buang).
  */
 export function useWdkWallet() {
-  const { address, hydrated, usdtBalance, setAddress, setHydrated, setUsdtBalance } =
-    useWalletStore();
+  const {
+    address,
+    hydrated,
+    usdtBalance,
+    ethBalance,
+    setAddress,
+    setHydrated,
+    setUsdtBalance,
+    setEthBalance,
+  } = useWalletStore();
 
   useEffect(() => {
     if (hydrated) return;
@@ -52,16 +60,34 @@ export function useWdkWallet() {
 
   const refreshBalance = useCallback(async () => {
     if (!address) return;
-    setUsdtBalance(await getUsdtBalance(address));
-  }, [address, setUsdtBalance]);
+    const [usdt, eth] = await Promise.all([
+      getUsdtBalance(address),
+      getNativeBalance(address),
+    ]);
+    setUsdtBalance(usdt);
+    setEthBalance(eth);
+  }, [address, setUsdtBalance, setEthBalance]);
+
+  /**
+   * Keluarkan dompet dari device ini: hapus seed terenkripsi + reset sesi.
+   * Ganti akun = logout lalu buat/pulihkan dompet lain lewat onboarding.
+   */
+  const logout = useCallback(async () => {
+    await forgetWallet();
+    setAddress(null);
+    setUsdtBalance(null);
+    setEthBalance(null);
+  }, [setAddress, setUsdtBalance, setEthBalance]);
 
   return {
     address,
     hydrated,
     usdtBalance,
+    ethBalance,
     create,
     restore,
     unlockSeed,
     refreshBalance,
+    logout,
   };
 }

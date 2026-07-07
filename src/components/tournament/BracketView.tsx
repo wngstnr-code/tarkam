@@ -19,31 +19,77 @@ export function BracketView({
   const rounds = [...new Set(matches.map((m) => m.round))].sort((a, b) => a - b);
   const maxRound = rounds[rounds.length - 1];
 
+  const roundLabel = (round: number) =>
+    round === maxRound
+      ? "Final"
+      : round === maxRound - 1
+        ? "Semifinal"
+        : round === maxRound - 2
+          ? "Perempat Final"
+          : `Ronde ${round}`;
+
   return (
-    <div className="flex gap-6 overflow-x-auto pb-2">
-      {rounds.map((round) => (
-        <div key={round} className="min-w-56 space-y-3">
-          <p className="text-xs font-semibold uppercase text-muted-foreground">
-            {round === maxRound
-              ? "Final"
-              : round === maxRound - 1
-                ? "Semifinal"
-                : `Ronde ${round}`}
-          </p>
-          {matches
+    <div className="overflow-x-auto pb-4">
+      <div className="flex min-h-[22rem] items-stretch">
+        {rounds.map((round, ri) => {
+          const rms = matches
             .filter((m) => m.round === round)
-            .sort((a, b) => a.slot - b.slot)
-            .map((m) => (
-              <MatchCard
-                key={m.id}
-                match={m}
-                matches={matches}
-                nameA={teamName(m.teamAId)}
-                nameB={teamName(m.teamBId)}
-              />
-            ))}
-        </div>
-      ))}
+            .sort((a, b) => a.slot - b.slot);
+          const isLast = ri === rounds.length - 1;
+          return (
+            <div key={round} className="flex items-stretch">
+              {/* Kolom ronde */}
+              <div className="flex w-64 shrink-0 flex-col">
+                <p
+                  className={`flex h-8 items-center justify-center text-center text-xs font-bold tracking-wider uppercase ${
+                    round === maxRound ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
+                  {roundLabel(round)}
+                </p>
+                <div className="flex flex-1 flex-col">
+                  {rms.map((m) => (
+                    <div key={m.id} className="flex flex-1 items-center px-1 py-2">
+                      <div className="w-full">
+                        <MatchCard
+                          match={m}
+                          matches={matches}
+                          nameA={teamName(m.teamAId)}
+                          nameB={teamName(m.teamBId)}
+                          isFinal={round === maxRound}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {/* Garis penghubung ke ronde berikutnya */}
+              {!isLast && <Connectors count={rms.length} />}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Garis siku "]" yang menyatukan tiap pasangan laga ke satu laga ronde berikutnya. */
+function Connectors({ count }: { count: number }) {
+  const pairs = Math.ceil(count / 2);
+  return (
+    <div className="flex w-8 shrink-0 flex-col">
+      {/* penyelaras dengan label ronde */}
+      <div className="h-8 shrink-0" />
+      <div className="flex flex-1 flex-col">
+        {Array.from({ length: pairs }).map((_, i) => (
+          <div key={i} className="relative flex-1">
+            {/* dua lengan (atas & bawah) + palang vertikal kanan */}
+            <div className="absolute inset-y-1/4 right-1/2 left-0 rounded-r-md border-y-2 border-r-2 border-foreground/35" />
+            {/* garis keluar menuju laga ronde berikutnya */}
+            <div className="absolute top-1/2 right-0 left-1/2 border-t-2 border-foreground/35" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -53,11 +99,13 @@ function MatchCard({
   matches,
   nameA,
   nameB,
+  isFinal,
 }: {
   match: Match;
   matches: Match[];
   nameA?: string;
   nameB?: string;
+  isFinal: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [sa, setSa] = useState("");
@@ -81,50 +129,89 @@ function MatchCard({
   }
 
   return (
-    <div className="rounded-md border p-2 text-sm">
-      <Row
-        name={nameA}
-        score={match.scoreA}
-        winner={!!match.winnerTeamId && match.winnerTeamId === match.teamAId}
-      />
-      <Row
-        name={nameB}
-        score={match.scoreB}
-        winner={!!match.winnerTeamId && match.winnerTeamId === match.teamBId}
-      />
-      {isBye && <p className="mt-1 text-xs text-muted-foreground">Bye — lolos otomatis</p>}
+    <div
+      className={`overflow-hidden rounded-lg border bg-card text-sm ${
+        isFinal && playable
+          ? "shadow-hard-primary border-2 border-primary"
+          : "shadow-hard-sm border-foreground"
+      }`}
+    >
+      {isFinal && playable && (
+        <p className="bg-primary py-0.5 text-center text-[10px] font-bold tracking-widest text-primary-foreground uppercase">
+          Partai puncak
+        </p>
+      )}
+      <div className="divide-y divide-foreground/15">
+        <Row
+          name={nameA}
+          score={match.scoreA}
+          winner={!!match.winnerTeamId && match.winnerTeamId === match.teamAId}
+        />
+        <Row
+          name={nameB}
+          score={match.scoreB}
+          winner={!!match.winnerTeamId && match.winnerTeamId === match.teamBId}
+        />
+      </div>
+      {isBye && (
+        <p className="border-t border-foreground/15 px-2 py-1 text-xs text-muted-foreground">
+          Bye — lolos otomatis
+        </p>
+      )}
       {playable && !editing && (
-        <Button
-          size="sm"
-          variant="outline"
-          className="mt-2 w-full"
-          onClick={() => setEditing(true)}
-        >
-          Input skor
-        </Button>
+        <div className="border-t border-foreground/15 bg-muted/40 p-2">
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full"
+            onClick={() => setEditing(true)}
+          >
+            Input skor
+          </Button>
+        </div>
       )}
       {editing && (
-        <div className="mt-2 space-y-2">
-          <div className="flex items-center gap-2">
-            <Input
-              className="h-8"
-              inputMode="numeric"
-              placeholder="0"
-              value={sa}
-              onChange={(e) => setSa(e.target.value)}
-            />
-            <span className="text-muted-foreground">–</span>
-            <Input
-              className="h-8"
-              inputMode="numeric"
-              placeholder="0"
-              value={sb}
-              onChange={(e) => setSb(e.target.value)}
-            />
+        <div className="space-y-2 border-t border-foreground/15 bg-muted/40 p-2">
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <label
+                htmlFor={`sa-${match.id}`}
+                className="mb-1 block truncate text-[10px] tracking-wider text-muted-foreground uppercase"
+              >
+                {nameA}
+              </label>
+              <Input
+                id={`sa-${match.id}`}
+                className="h-9 text-center font-mono text-lg tabular-nums"
+                inputMode="numeric"
+                placeholder="0"
+                value={sa}
+                onChange={(e) => setSa(e.target.value)}
+              />
+            </div>
+            <span className="pb-1.5 font-display text-lg" aria-hidden>
+              :
+            </span>
+            <div className="flex-1">
+              <label
+                htmlFor={`sb-${match.id}`}
+                className="mb-1 block truncate text-[10px] tracking-wider text-muted-foreground uppercase"
+              >
+                {nameB}
+              </label>
+              <Input
+                id={`sb-${match.id}`}
+                className="h-9 text-center font-mono text-lg tabular-nums"
+                inputMode="numeric"
+                placeholder="0"
+                value={sb}
+                onChange={(e) => setSb(e.target.value)}
+              />
+            </div>
           </div>
           {error && <p className="text-xs text-destructive">{error}</p>}
           <div className="flex gap-2">
-            <Button size="sm" className="flex-1" onClick={save}>
+            <Button size="sm" variant="secondary" className="flex-1" onClick={save}>
               Simpan
             </Button>
             <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>
@@ -148,12 +235,12 @@ function Row({
 }) {
   return (
     <div
-      className={`flex items-center justify-between px-1 py-0.5 ${
+      className={`flex items-center justify-between px-3 py-1.5 ${
         winner ? "font-bold" : name ? "" : "text-muted-foreground"
       }`}
     >
-      <span>{name ?? "…"}</span>
-      <span className="tabular-nums">{score ?? ""}</span>
+      <span className="truncate">{name ?? "…"}</span>
+      <span className="ml-2 font-mono tabular-nums">{score ?? ""}</span>
     </div>
   );
 }

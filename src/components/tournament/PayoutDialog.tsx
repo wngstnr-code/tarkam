@@ -82,28 +82,36 @@ export function PayoutDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Bayar hadiah juara {rank}</DialogTitle>
+          <DialogTitle className="font-display text-xl">
+            Bayar hadiah juara {rank}
+          </DialogTitle>
           <DialogDescription>
             Transfer USDT on-chain dari brankas pool — permanen dan publik.
             Periksa baik-baik.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-2 rounded-md border p-3 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Penerima</span>
-            <span className="font-medium">{team.name}</span>
+        <div className="space-y-2 rounded-lg border border-foreground/25 bg-muted/40 p-4 text-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-xs tracking-wider text-muted-foreground uppercase">
+              Penerima
+            </span>
+            <span className="font-bold">{team.name}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Dompet</span>
-            <span className="font-mono text-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs tracking-wider text-muted-foreground uppercase">
+              Dompet
+            </span>
+            <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs">
               {team.captainAddress ? shortenAddress(team.captainAddress, 6) : "—"}
             </span>
           </div>
           <Separator />
-          <div className="flex justify-between text-base font-bold">
-            <span>Jumlah</span>
-            <span className="tabular-nums">
+          <div className="flex items-end justify-between">
+            <span className="text-xs tracking-wider text-muted-foreground uppercase">
+              Total payout
+            </span>
+            <span className="font-mono text-xl font-bold text-secondary tabular-nums">
               {formatUSDT(parseUSDT(amount))} USDT
             </span>
           </div>

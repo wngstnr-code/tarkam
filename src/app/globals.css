@@ -8,7 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-mono);
   --font-heading: var(--font-sans);
   --font-display: var(--font-anton);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -118,6 +118,47 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Gaya Stitch: hard shadow ala poster turnamen (offset tegas, tanpa blur) */
+@utility shadow-hard-xs {
+  box-shadow: 1px 1px 0 0 var(--foreground);
+}
+@utility shadow-hard-sm {
+  box-shadow: 2px 2px 0 0 var(--foreground);
+}
+@utility shadow-hard {
+  box-shadow: 4px 4px 0 0 var(--foreground);
+}
+@utility shadow-hard-primary {
+  box-shadow: 4px 4px 0 0 var(--primary);
+}
+
+/* Garis rumput lapangan untuk panel hero (di atas latar batik, bukan menggantikannya) */
+@utility pitch-texture {
+  background-image: linear-gradient(
+      0deg,
+      transparent 24%,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 25%,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 26%,
+      transparent 27%,
+      transparent 74%,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 75%,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 76%,
+      transparent 77%
+    ),
+    linear-gradient(
+      90deg,
+      transparent 24%,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 25%,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 26%,
+      transparent 27%,
+      transparent 74%,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 75%,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 76%,
+      transparent 77%
+    );
+  background-size: 50px 50px;
 }
 
 @layer base {

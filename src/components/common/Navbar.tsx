@@ -9,11 +9,11 @@ export function Navbar() {
   const { address } = useWdkWallet();
 
   return (
-    <nav className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4">
+    <nav className="sticky top-0 z-40 border-b border-foreground bg-background/90 backdrop-blur">
+      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         <Link
           href="/"
-          className="font-display text-xl text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          className="font-display text-2xl text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           ⚽ Tarkam
         </Link>

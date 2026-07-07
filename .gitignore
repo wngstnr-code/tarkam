@@ -41,3 +41,8 @@ yarn-error.log*
 next-env.d.ts
 .demo-secrets/
 .screenshots/
+
+# dokumentasi markdown internal — hanya README yang di-commit
+*.md
+!README.md
+

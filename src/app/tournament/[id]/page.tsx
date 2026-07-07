@@ -93,20 +93,34 @@ export default function TournamentDetailPage({
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 p-6 pt-10">
-      <header className="flex items-center justify-between">
+      <header className="flex items-end justify-between gap-4">
         <div>
-          <Link href="/" className="text-sm text-muted-foreground hover:underline">
+          <Link
+            href="/"
+            className="text-xs font-semibold tracking-wider text-primary uppercase hover:underline"
+          >
             ← Semua turnamen
           </Link>
-          <h1 className="font-display text-3xl">{tournament.name}</h1>
-          <p className="text-sm text-muted-foreground">
-            {tournament.teamCount} tim · {tournament.entryFee} USDT/tim · sistem
-            gugur
+          <h1 className="mt-1 font-display text-4xl leading-none">
+            {tournament.name}
+          </h1>
+          <p className="mt-2 text-xs tracking-wider text-muted-foreground uppercase">
+            {tournament.teamCount} tim · {tournament.entryFee} USDT/tim ·
+            sistem gugur
           </p>
         </div>
-        <Badge variant={finished ? "secondary" : "default"}>
+        <Badge
+          className="shrink-0 shadow-hard-xs"
+          variant={
+            finished
+              ? "outline"
+              : tournament.status === "running"
+                ? "secondary"
+                : "default"
+          }
+        >
           {finished
-            ? "Selesai"
+            ? "🏆 Selesai"
             : tournament.status === "running"
               ? "Berjalan"
               : "Pendaftaran"}
@@ -118,7 +132,12 @@ export default function TournamentDetailPage({
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <div>
-            <CardTitle>Tim ({paidTeams.length} lunas / {teams.length} terdaftar)</CardTitle>
+            <CardTitle className="font-display text-xl">
+              Tim{" "}
+              <span className="text-sm text-muted-foreground normal-case">
+                ({paidTeams.length} lunas / {teams.length} terdaftar)
+              </span>
+            </CardTitle>
             <CardDescription>
               &quot;Lunas&quot; hanya bisa ditandai bila saldo pool on-chain
               sudah menutup biayanya.
@@ -126,7 +145,7 @@ export default function TournamentDetailPage({
           </div>
           {tournament.status === "setup" && (
             <AddTeamDialog
-              tournamentId={id}
+              tournament={tournament}
               disabled={teams.length >= tournament.teamCount}
             />
           )}
@@ -156,7 +175,7 @@ export default function TournamentDetailPage({
       {matches.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Bracket</CardTitle>
+            <CardTitle className="font-display text-xl">Bracket</CardTitle>
           </CardHeader>
           <CardContent>
             <BracketView matches={matches} teams={teams} />
@@ -165,17 +184,17 @@ export default function TournamentDetailPage({
       )}
 
       {finished && winners && (
-        <Card>
-          <CardHeader>
-            <CardTitle>
+        <section className="space-y-4">
+          <div className="border-b-2 border-foreground pb-3">
+            <h2 className="font-display text-2xl">
               🏆 Juara: {teamById(winners.champion)?.name}
-            </CardTitle>
-            <CardDescription>
+            </h2>
+            <p className="text-sm text-muted-foreground">
               Bayar hadiah on-chain — resi = hash transaksi, bisa diaudit siapa
               pun.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
             {payoutRows.map(({ prize, team }) => {
               const paid = payouts.find(
                 (p) => p.rank === prize.rank && p.txHash
@@ -183,36 +202,46 @@ export default function TournamentDetailPage({
               return (
                 <div
                   key={prize.rank}
-                  className="flex items-center justify-between gap-3 rounded-md border p-3"
+                  className="flex flex-col rounded-xl border border-foreground bg-card p-5 shadow-hard-sm"
                 >
-                  <div>
-                    <p className="font-medium">
-                      Juara {prize.rank}: {team.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground tabular-nums">
-                      {prize.amount} USDT
-                    </p>
+                  <p className="text-xs tracking-wider text-muted-foreground uppercase">
+                    Juara {prize.rank}
+                  </p>
+                  <p className="mt-1 font-display text-xl leading-tight">
+                    {team.name}
+                  </p>
+                  <p
+                    className={`mt-3 mb-5 font-mono text-2xl tabular-nums ${
+                      paid?.txHash
+                        ? "text-muted-foreground opacity-70"
+                        : "text-foreground"
+                    }`}
+                  >
+                    {prize.amount} USDT
+                  </p>
+                  <div className="mt-auto">
+                    {paid?.txHash ? (
+                      <TxReceipt hash={paid.txHash} label="Dibayar ✓" />
+                    ) : (
+                      <Button
+                        className="w-full"
+                        onClick={() =>
+                          setPayoutTarget({
+                            team,
+                            rank: prize.rank,
+                            amount: prize.amount,
+                          })
+                        }
+                      >
+                        Bayar hadiah
+                      </Button>
+                    )}
                   </div>
-                  {paid?.txHash ? (
-                    <TxReceipt hash={paid.txHash} label="Dibayar ✓" />
-                  ) : (
-                    <Button
-                      onClick={() =>
-                        setPayoutTarget({
-                          team,
-                          rank: prize.rank,
-                          amount: prize.amount,
-                        })
-                      }
-                    >
-                      Bayar hadiah
-                    </Button>
-                  )}
                 </div>
               );
             })}
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       )}
 
       {payoutTarget && (

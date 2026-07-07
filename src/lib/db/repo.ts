@@ -11,6 +11,11 @@ export async function saveWalletMeta(meta: WalletMeta): Promise<void> {
   await db.wallet.add(meta);
 }
 
+/** Keluarkan dompet dari device ini (hapus seed terenkripsi). Ireversibel tanpa backup seed. */
+export async function forgetWallet(): Promise<void> {
+  await db.wallet.clear();
+}
+
 // ── Tournament ──────────────────────────────────────────────────────────
 export async function listTournaments(): Promise<Tournament[]> {
   return db.tournaments.orderBy("createdAt").reverse().toArray();

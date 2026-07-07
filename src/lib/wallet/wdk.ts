@@ -4,12 +4,12 @@ import WalletManagerEvm, {
 } from "@tetherto/wdk-wallet-evm";
 import { SeedSignerEvm } from "@tetherto/wdk-wallet-evm/signers";
 import * as bip39 from "bip39";
-import { RPC_URL } from "@/lib/chain/config";
+import { RPC_URLS } from "@/lib/chain/config";
 
 /** Buat wallet manager WDK dari seed phrase BIP-39. */
 export function walletFromSeed(seedPhrase: string) {
   return new WalletManagerEvm(new SeedSignerEvm(seedPhrase), {
-    provider: RPC_URL,
+    provider: RPC_URLS,
   });
 }
 
@@ -24,7 +24,7 @@ export function isValidSeedPhrase(phrase: string): boolean {
 
 /** Akun read-only untuk alamat mana pun (pantau saldo pool tanpa seed). */
 export function readOnlyAccount(address: string) {
-  return new WalletAccountReadOnlyEvm(address, { provider: RPC_URL });
+  return new WalletAccountReadOnlyEvm(address, { provider: RPC_URLS });
 }
 
 /** Derive akun pertama (index 0) + alamatnya dari sebuah seed phrase. */

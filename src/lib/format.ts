@@ -25,6 +25,23 @@ export function parseUSDT(display: string): bigint {
   );
 }
 
+/** Wei (bigint) → string ETH ringkas, mis. 1500000000000000n → "0.0015". */
+export function formatEth(wei: bigint, maxFrac = 5): string {
+  const div = 10n ** 18n;
+  const whole = wei / div;
+  const frac = wei % div;
+  if (frac === 0n) return whole.toString();
+  const fracStr = frac
+    .toString()
+    .padStart(18, "0")
+    .slice(0, maxFrac)
+    .replace(/0+$/, "");
+  return fracStr ? `${whole}.${fracStr}` : whole.toString();
+}
+
+/** Ambang gas minimal (wei) — di bawah ini transaksi berisiko gagal. ~0.002 ETH. */
+export const MIN_GAS_WEI = 2n * 10n ** 15n;
+
 export function shortenAddress(addr: string, chars = 4): string {
   if (addr.length <= 2 + chars * 2) return addr;
   return `${addr.slice(0, 2 + chars)}…${addr.slice(-chars)}`;

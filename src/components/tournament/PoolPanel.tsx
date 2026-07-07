@@ -15,7 +15,7 @@ export function PoolPanel({ tournament }: { tournament: Tournament }) {
   return (
     <section
       aria-label="Brankas hadiah"
-      className="relative overflow-hidden rounded-xl bg-[#0e3d20] p-5 text-white shadow-md"
+      className="shadow-hard relative overflow-hidden rounded-xl border border-foreground bg-[#0e3d20] p-5 text-white"
     >
       {/* Garis lapangan: lingkaran tengah + garis tengah, dekoratif */}
       <svg
@@ -34,11 +34,11 @@ export function PoolPanel({ tournament }: { tournament: Tournament }) {
       </svg>
 
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="shrink-0 self-center rounded-lg bg-white p-2 sm:self-auto">
+        <div className="shadow-hard-sm shrink-0 self-center rounded-lg border border-foreground bg-white p-2 sm:self-auto">
           <QRCodeSVG value={tournament.poolAddress} size={104} />
         </div>
         <div className="min-w-0 space-y-2">
-          <p className="font-display text-sm text-white/70">
+          <p className="text-xs font-semibold tracking-widest text-white/70 uppercase">
             Brankas Hadiah — saldo pot live on-chain
           </p>
           <p className="font-mono text-4xl font-bold tabular-nums text-[#7fe0a7]">

@@ -1,7 +1,24 @@
 export const CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? 11155111);
 
-export const RPC_URL =
-  process.env.NEXT_PUBLIC_RPC_URL ?? "https://sepolia.drpc.org";
+// RPC publik Sepolia sering balas 500 saat broadcast tx. Pakai daftar dengan
+// failover otomatis (WDK pindah ke node berikutnya bila satu gagal).
+const DEFAULT_RPCS = [
+  "https://ethereum-sepolia-rpc.publicnode.com",
+  "https://sepolia.drpc.org",
+];
+
+/** Daftar RPC (env boleh berisi beberapa, dipisah koma). Env di depan, lalu cadangan. */
+export const RPC_URLS: string[] = Array.from(
+  new Set(
+    [
+      ...(process.env.NEXT_PUBLIC_RPC_URL?.split(",").map((s) => s.trim()) ?? []),
+      ...DEFAULT_RPCS,
+    ].filter(Boolean)
+  )
+);
+
+/** RPC utama (kompat untuk pemakaian yang butuh satu URL). */
+export const RPC_URL = RPC_URLS[0];
 
 /** Alamat kontrak MockUSDT (ERC-20, 6 desimal) di Sepolia. */
 export const USDT_ADDRESS =

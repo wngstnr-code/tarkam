@@ -1,18 +1,21 @@
 import "@/polyfill";
 import type { Metadata } from "next";
-import { Anton, Geist, Geist_Mono } from "next/font/google";
+import { Anton, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { TestnetBanner } from "@/components/common/TestnetBanner";
 import { Navbar } from "@/components/common/Navbar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Tipografi Stitch: Plus Jakarta Sans (body/label) + JetBrains Mono (angka/alamat) + Anton (papan skor)
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
 const anton = Anton({
@@ -35,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} antialiased`}
+        className={`${jakarta.variable} ${jetbrainsMono.variable} ${anton.variable} antialiased`}
       >
         <TestnetBanner />
         <Navbar />
