@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { applyResult } from "@/lib/bracket/engine";
 import { putMatches } from "@/lib/db/repo";
+import { useI18n } from "@/lib/i18n/context";
 import type { Match, Team } from "@/types";
 
 export function BracketView({
@@ -14,6 +15,7 @@ export function BracketView({
   matches: Match[];
   teams: Team[];
 }) {
+  const { t } = useI18n();
   const teamName = (id?: string) =>
     id ? teams.find((t) => t.id === id)?.name ?? "?" : undefined;
   const rounds = [...new Set(matches.map((m) => m.round))].sort((a, b) => a - b);
@@ -21,12 +23,12 @@ export function BracketView({
 
   const roundLabel = (round: number) =>
     round === maxRound
-      ? "Final"
+      ? t("bv.final")
       : round === maxRound - 1
-        ? "Semifinal"
+        ? t("bv.semifinal")
         : round === maxRound - 2
-          ? "Perempat Final"
-          : `Ronde ${round}`;
+          ? t("bv.quarterfinal")
+          : t("bv.round", { n: round });
 
   return (
     <div className="overflow-x-auto pb-4">
@@ -107,6 +109,7 @@ function MatchCard({
   nameB?: string;
   isFinal: boolean;
 }) {
+  const { t } = useI18n();
   const [editing, setEditing] = useState(false);
   const [sa, setSa] = useState("");
   const [sb, setSb] = useState("");
@@ -138,7 +141,7 @@ function MatchCard({
     >
       {isFinal && playable && (
         <p className="bg-primary py-0.5 text-center text-[10px] font-bold tracking-widest text-primary-foreground uppercase">
-          Partai puncak
+          {t("bv.top_match")}
         </p>
       )}
       <div className="divide-y divide-foreground/15">
@@ -155,7 +158,7 @@ function MatchCard({
       </div>
       {isBye && (
         <p className="border-t border-foreground/15 px-2 py-1 text-xs text-muted-foreground">
-          Bye — lolos otomatis
+          {t("bv.bye")}
         </p>
       )}
       {playable && !editing && (
@@ -166,7 +169,7 @@ function MatchCard({
             className="w-full"
             onClick={() => setEditing(true)}
           >
-            Input skor
+            {t("bv.input_score")}
           </Button>
         </div>
       )}
@@ -212,10 +215,10 @@ function MatchCard({
           {error && <p className="text-xs text-destructive">{error}</p>}
           <div className="flex gap-2">
             <Button size="sm" variant="secondary" className="flex-1" onClick={save}>
-              Simpan
+              {t("bv.save")}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => setEditing(false)}>
-              Batal
+              {t("bv.cancel")}
             </Button>
           </div>
         </div>

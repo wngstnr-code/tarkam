@@ -8,8 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { TournamentForm } from "@/components/tournament/TournamentForm";
+import { useI18n } from "@/lib/i18n/context";
 
 export default function NewTournamentPage() {
+  const { t } = useI18n();
   return (
     <main className="mx-auto max-w-lg space-y-6 p-6 pt-12">
       <Card className="shadow-hard">
@@ -21,12 +23,9 @@ export default function NewTournamentPage() {
             ⚽
           </span>
           <CardTitle className="relative z-10 font-display text-2xl text-primary">
-            Turnamen Baru
+            {t("nt.title")}
           </CardTitle>
-          <CardDescription className="relative z-10">
-            Satu turnamen = satu brankas hadiah on-chain. Alamatnya publik —
-            semua tim bisa memantau saldonya.
-          </CardDescription>
+          <CardDescription className="relative z-10">{t("nt.desc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <TournamentForm />

@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useWdkWallet } from "@/hooks/useWdkWallet";
+import { useI18n } from "@/lib/i18n/context";
 import { SeedPhraseReveal } from "./SeedPhraseReveal";
 
 type Step = "password" | "backup" | "confirm" | "done";
 
 export function CreateWalletFlow() {
   const router = useRouter();
+  const { t } = useI18n();
   const { create } = useWdkWallet();
   const [step, setStep] = useState<Step>("password");
   const [password, setPassword] = useState("");
@@ -32,11 +34,11 @@ export function CreateWalletFlow() {
   async function handleCreate() {
     setError(null);
     if (password.length < 8) {
-      setError("Password minimal 8 karakter");
+      setError(t("cw.err_pw_len"));
       return;
     }
     if (password !== password2) {
-      setError("Password tidak sama");
+      setError(t("cw.err_pw_match"));
       return;
     }
     setBusy(true);
@@ -57,7 +59,7 @@ export function CreateWalletFlow() {
       (i) => (answers[i] ?? "").trim().toLowerCase() === words[i]
     );
     if (!ok) {
-      setError("Ada kata yang salah — cek lagi catatan backup-mu.");
+      setError(t("cw.err_wrong_word"));
       return;
     }
     setSeedPhrase(null); // buang plaintext dari state
@@ -69,17 +71,17 @@ export function CreateWalletFlow() {
     return (
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="pw">Password dompet</Label>
+          <Label htmlFor="pw">{t("cw.pw_label")}</Label>
           <Input
             id="pw"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Minimal 8 karakter"
+            placeholder={t("cw.pw_placeholder")}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="pw2">Ulangi password</Label>
+          <Label htmlFor="pw2">{t("cw.pw2_label")}</Label>
           <Input
             id="pw2"
             type="password"
@@ -87,13 +89,10 @@ export function CreateWalletFlow() {
             onChange={(e) => setPassword2(e.target.value)}
           />
         </div>
-        <p className="text-sm text-muted-foreground">
-          Password ini mengenkripsi seed phrase di device-mu. Diminta setiap
-          kali kamu akan mengirim uang.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("cw.pw_note")}</p>
         {error && <p className="text-sm text-destructive">{error}</p>}
         <Button onClick={handleCreate} disabled={busy} className="w-full">
-          {busy ? "Membuat dompet…" : "Buat dompet"}
+          {busy ? t("cw.creating") : t("cw.create_btn")}
         </Button>
       </div>
     );
@@ -104,7 +103,7 @@ export function CreateWalletFlow() {
       <div className="space-y-4">
         <SeedPhraseReveal seedPhrase={seedPhrase} />
         <Button onClick={() => setStep("confirm")} className="w-full">
-          Sudah kucatat — lanjut konfirmasi
+          {t("cw.noted_next")}
         </Button>
       </div>
     );
@@ -114,12 +113,13 @@ export function CreateWalletFlow() {
     return (
       <div className="space-y-4">
         <p className="text-sm">
-          Isi kata ke-{checkIndexes.map((i) => i + 1).join(", ke-")} untuk
-          membuktikan backup-mu benar:
+          {t("cw.confirm_prompt", {
+            positions: checkIndexes.map((i) => i + 1).join(", "),
+          })}
         </p>
         {checkIndexes.map((i) => (
           <div key={i} className="space-y-2">
-            <Label htmlFor={`w${i}`}>Kata ke-{i + 1}</Label>
+            <Label htmlFor={`w${i}`}>{t("cw.word_n", { n: i + 1 })}</Label>
             <Input
               id={`w${i}`}
               autoComplete="off"
@@ -139,10 +139,10 @@ export function CreateWalletFlow() {
               setStep("backup");
             }}
           >
-            Lihat lagi
+            {t("cw.view_again")}
           </Button>
           <Button onClick={handleConfirm} className="flex-1">
-            Konfirmasi backup
+            {t("cw.confirm_backup")}
           </Button>
         </div>
       </div>
@@ -156,7 +156,7 @@ export function CreateWalletFlow() {
         <div className="flex items-center justify-between bg-foreground px-4 py-2 text-background">
           <span className="font-display text-sm tracking-wider">Tarkam</span>
           <span className="font-mono text-xs tracking-widest uppercase">
-            Status: aman
+            {t("cw.status_safe")}
           </span>
         </div>
         <div className="flex flex-col items-center gap-4 px-6 py-10 text-center">
@@ -165,18 +165,15 @@ export function CreateWalletFlow() {
               ✓
             </span>
           </div>
-          <h2 className="font-display text-3xl leading-none">Dompet siap!</h2>
-          <p className="max-w-xs text-sm text-muted-foreground">
-            Kunci aksesmu tersimpan terenkripsi di browser ini. Jangan pernah
-            bagikan seed phrase kepada siapa pun.
-          </p>
+          <h2 className="font-display text-3xl leading-none">{t("cw.wallet_ready")}</h2>
+          <p className="max-w-xs text-sm text-muted-foreground">{t("cw.ready_body")}</p>
           <Button className="w-full" size="lg" onClick={() => router.push("/")}>
-            Masuk ke dashboard →
+            {t("cw.go_dashboard")}
           </Button>
         </div>
         <div className="border-t border-foreground/20 bg-muted px-4 py-1.5 text-center">
           <span className="text-[10px] tracking-widest text-muted-foreground uppercase">
-            Sepak bola akar rumput
+            {t("cw.grassroots")}
           </span>
         </div>
       </div>

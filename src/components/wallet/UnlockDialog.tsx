@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useI18n } from "@/lib/i18n/context";
 
 interface UnlockDialogProps {
   open: boolean;
@@ -26,11 +27,12 @@ interface UnlockDialogProps {
 export function UnlockDialog({
   open,
   onOpenChange,
-  title = "Buka dompet",
-  description = "Masukkan password dompet untuk melanjutkan.",
+  title,
+  description,
   onUnlock,
-  confirmLabel = "Buka",
+  confirmLabel,
 }: UnlockDialogProps) {
+  const { t } = useI18n();
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,11 +55,11 @@ export function UnlockDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle>{title ?? t("ud.title")}</DialogTitle>
+          <DialogDescription>{description ?? t("ud.desc")}</DialogDescription>
         </DialogHeader>
         <div className="space-y-2">
-          <Label htmlFor="unlock-pw">Password</Label>
+          <Label htmlFor="unlock-pw">{t("ud.pw")}</Label>
           <Input
             id="unlock-pw"
             type="password"
@@ -70,10 +72,10 @@ export function UnlockDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Batal
+            {t("ud.cancel")}
           </Button>
           <Button onClick={handleUnlock} disabled={busy || !password}>
-            {busy ? "Membuka…" : confirmLabel}
+            {busy ? t("ud.unlocking") : confirmLabel ?? t("ud.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

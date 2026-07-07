@@ -20,6 +20,7 @@ import { transferUsdt } from "@/lib/wallet/transfer";
 import { humanizeTxError } from "@/lib/wallet/errors";
 import { addTeam } from "@/lib/db/repo";
 import { parseUSDT } from "@/lib/format";
+import { useI18n } from "@/lib/i18n/context";
 import type { Team, Tournament } from "@/types";
 
 type Step = "form" | "paying" | "done";
@@ -31,6 +32,7 @@ export function AddTeamDialog({
   tournament: Tournament;
   disabled?: boolean;
 }) {
+  const { t } = useI18n();
   const { unlockSeed, refreshBalance, ethBalance } = useWdkWallet();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("form");
@@ -59,11 +61,11 @@ export function AddTeamDialog({
 
   async function handlePayAndAdd() {
     setError(null);
-    if (!name.trim()) return setError("Nama tim wajib diisi");
+    if (!name.trim()) return setError(t("at.err_name"));
     if (captainAddress && !/^0x[0-9a-fA-F]{40}$/.test(captainAddress.trim())) {
-      return setError("Alamat dompet kapten tidak valid (0x…40 hex)");
+      return setError(t("at.err_addr"));
     }
-    if (!password) return setError("Password dompet wajib untuk membayar");
+    if (!password) return setError(t("at.err_pw"));
 
     setStep("paying");
     try {
@@ -98,41 +100,42 @@ export function AddTeamDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" disabled={disabled}>
-          + Tambah tim
+          {t("at.add_team")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         {step === "done" && txHash ? (
           <>
             <DialogHeader>
-              <DialogTitle>Tim terdaftar &amp; lunas</DialogTitle>
+              <DialogTitle>{t("at.done_title")}</DialogTitle>
               <DialogDescription>
-                {name || "Tim"} sudah membayar {tournament.entryFee} USDT ke
-                brankas. Bukti transfer tersimpan permanen di chain.
+                {t("at.done_desc", {
+                  name: name || t("at.default_team"),
+                  fee: tournament.entryFee,
+                })}
               </DialogDescription>
             </DialogHeader>
-            <TxReceipt hash={txHash} label="Biaya daftar terkirim ✓" />
+            <TxReceipt hash={txHash} label={t("at.receipt")} />
             <DialogFooter>
-              <Button onClick={() => handleOpenChange(false)}>Selesai</Button>
+              <Button onClick={() => handleOpenChange(false)}>{t("at.done")}</Button>
             </DialogFooter>
           </>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Tambah tim</DialogTitle>
+              <DialogTitle>{t("at.dialog_title")}</DialogTitle>
               <DialogDescription>
-                Biaya daftar{" "}
+                {t("at.dialog_desc_1")}{" "}
                 <span className="font-mono font-semibold text-secondary tabular-nums">
                   {tournament.entryFee} USDT
                 </span>{" "}
-                dikirim dari dompetmu ke brankas. Tim baru masuk setelah transfer
-                sukses.
+                {t("at.dialog_desc_2")}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <GasWarning ethBalance={ethBalance} />
               <div className="space-y-2">
-                <Label htmlFor="team-name">Nama tim</Label>
+                <Label htmlFor="team-name">{t("at.team_name")}</Label>
                 <Input
                   id="team-name"
                   value={name}
@@ -142,9 +145,7 @@ export function AddTeamDialog({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="team-addr">
-                  Dompet kapten (opsional, tujuan hadiah)
-                </Label>
+                <Label htmlFor="team-addr">{t("at.captain_opt")}</Label>
                 <Input
                   id="team-addr"
                   value={captainAddress}
@@ -155,7 +156,7 @@ export function AddTeamDialog({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="team-pw">Password dompet (untuk membayar)</Label>
+                <Label htmlFor="team-pw">{t("at.pw_label")}</Label>
                 <Input
                   id="team-pw"
                   type="password"
@@ -164,7 +165,7 @@ export function AddTeamDialog({
                   onKeyDown={(e) =>
                     e.key === "Enter" && step !== "paying" && handlePayAndAdd()
                   }
-                  placeholder="Password dompet panitia"
+                  placeholder={t("at.pw_placeholder")}
                   disabled={step === "paying"}
                 />
               </div>
@@ -177,8 +178,8 @@ export function AddTeamDialog({
             <DialogFooter>
               <Button onClick={handlePayAndAdd} disabled={step === "paying"}>
                 {step === "paying"
-                  ? "Mengirim ke brankas…"
-                  : `Bayar ${tournament.entryFee} USDT & daftar`}
+                  ? t("at.sending")
+                  : t("at.pay_btn", { fee: tournament.entryFee })}
               </Button>
             </DialogFooter>
           </>

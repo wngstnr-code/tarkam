@@ -27,6 +27,7 @@ import {
   updateTournament,
 } from "@/lib/db/repo";
 import { generateBracket, getWinners, isFinished } from "@/lib/bracket/engine";
+import { useI18n } from "@/lib/i18n/context";
 import type { Team } from "@/types";
 
 export default function TournamentDetailPage({
@@ -34,6 +35,7 @@ export default function TournamentDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { t } = useI18n();
   const { id } = use(params);
   const tournament = useLiveQuery(() => getTournament(id), [id]);
   const teams = useLiveQuery(() => listTeams(id), [id]) ?? [];
@@ -51,9 +53,9 @@ export default function TournamentDetailPage({
   if (tournament === null || !tournament) {
     return (
       <main className="mx-auto max-w-2xl p-6 pt-12 text-center text-sm text-muted-foreground">
-        Turnamen tidak ditemukan.{" "}
+        {t("td.not_found")}{" "}
         <Link href="/" className="underline">
-          Kembali
+          {t("td.back")}
         </Link>
       </main>
     );
@@ -99,14 +101,16 @@ export default function TournamentDetailPage({
             href="/"
             className="text-xs font-semibold tracking-wider text-primary uppercase hover:underline"
           >
-            ← Semua turnamen
+            {t("td.all_tournaments")}
           </Link>
           <h1 className="mt-1 font-display text-4xl leading-none">
             {tournament.name}
           </h1>
           <p className="mt-2 text-xs tracking-wider text-muted-foreground uppercase">
-            {tournament.teamCount} tim · {tournament.entryFee} USDT/tim ·
-            sistem gugur
+            {t("td.meta", {
+              count: tournament.teamCount,
+              fee: tournament.entryFee,
+            })}
           </p>
         </div>
         <Badge
@@ -120,10 +124,10 @@ export default function TournamentDetailPage({
           }
         >
           {finished
-            ? "🏆 Selesai"
+            ? t("td.status_finished")
             : tournament.status === "running"
-              ? "Berjalan"
-              : "Pendaftaran"}
+              ? t("td.status_running")
+              : t("td.status_registration")}
         </Badge>
       </header>
 
@@ -133,15 +137,15 @@ export default function TournamentDetailPage({
         <CardHeader className="flex-row items-center justify-between space-y-0">
           <div>
             <CardTitle className="font-display text-xl">
-              Tim{" "}
+              {t("td.teams")}{" "}
               <span className="text-sm text-muted-foreground normal-case">
-                ({paidTeams.length} lunas / {teams.length} terdaftar)
+                {t("td.teams_count", {
+                  paid: paidTeams.length,
+                  total: teams.length,
+                })}
               </span>
             </CardTitle>
-            <CardDescription>
-              &quot;Lunas&quot; hanya bisa ditandai bila saldo pool on-chain
-              sudah menutup biayanya.
-            </CardDescription>
+            <CardDescription>{t("td.teams_desc")}</CardDescription>
           </div>
           {tournament.status === "setup" && (
             <AddTeamDialog
@@ -166,7 +170,7 @@ export default function TournamentDetailPage({
             disabled={paidTeams.length < 2}
             onClick={startTournament}
           >
-            Mulai turnamen ({paidTeams.length} tim lunas) — susun bracket
+            {t("td.start_btn", { n: paidTeams.length })}
           </Button>
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
@@ -175,7 +179,7 @@ export default function TournamentDetailPage({
       {matches.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="font-display text-xl">Bracket</CardTitle>
+            <CardTitle className="font-display text-xl">{t("td.bracket")}</CardTitle>
           </CardHeader>
           <CardContent>
             <BracketView matches={matches} teams={teams} />
@@ -187,12 +191,9 @@ export default function TournamentDetailPage({
         <section className="space-y-4">
           <div className="border-b-2 border-foreground pb-3">
             <h2 className="font-display text-2xl">
-              🏆 Juara: {teamById(winners.champion)?.name}
+              {t("td.champion", { name: teamById(winners.champion)?.name ?? "" })}
             </h2>
-            <p className="text-sm text-muted-foreground">
-              Bayar hadiah on-chain — resi = hash transaksi, bisa diaudit siapa
-              pun.
-            </p>
+            <p className="text-sm text-muted-foreground">{t("td.payout_desc")}</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {payoutRows.map(({ prize, team }) => {
@@ -205,7 +206,7 @@ export default function TournamentDetailPage({
                   className="flex flex-col rounded-xl border border-foreground bg-card p-5 shadow-hard-sm"
                 >
                   <p className="text-xs tracking-wider text-muted-foreground uppercase">
-                    Juara {prize.rank}
+                    {t("td.rank", { n: prize.rank })}
                   </p>
                   <p className="mt-1 font-display text-xl leading-tight">
                     {team.name}
@@ -221,7 +222,7 @@ export default function TournamentDetailPage({
                   </p>
                   <div className="mt-auto">
                     {paid?.txHash ? (
-                      <TxReceipt hash={paid.txHash} label="Dibayar ✓" />
+                      <TxReceipt hash={paid.txHash} label={t("td.paid_receipt")} />
                     ) : (
                       <Button
                         className="w-full"
@@ -233,7 +234,7 @@ export default function TournamentDetailPage({
                           })
                         }
                       >
-                        Bayar hadiah
+                        {t("td.pay_prize")}
                       </Button>
                     )}
                   </div>

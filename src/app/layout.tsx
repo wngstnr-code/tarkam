@@ -4,6 +4,7 @@ import { Anton, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { TestnetBanner } from "@/components/common/TestnetBanner";
 import { Navbar } from "@/components/common/Navbar";
+import { I18nProvider } from "@/lib/i18n/context";
 
 // Tipografi Stitch: Plus Jakarta Sans (body/label) + JetBrains Mono (angka/alamat) + Anton (papan skor)
 const jakarta = Plus_Jakarta_Sans({
@@ -25,9 +26,9 @@ const anton = Anton({
 });
 
 export const metadata: Metadata = {
-  title: "Tarkam — Brankas Hadiah Turnamen",
+  title: "Tarkam — Tournament Prize Vault",
   description:
-    "Hadiah turnamen yang tak bisa dibawa kabur. On-chain prize escrow untuk sepak bola akar rumput, dibangun dengan Tether WDK.",
+    "Tournament prizes that can't run off. On-chain prize escrow for grassroots football, built with Tether WDK.",
 };
 
 export default function RootLayout({
@@ -36,13 +37,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
+    <html lang="en">
       <body
         className={`${jakarta.variable} ${jetbrainsMono.variable} ${anton.variable} antialiased`}
       >
-        <TestnetBanner />
-        <Navbar />
-        {children}
+        <I18nProvider>
+          <TestnetBanner />
+          <Navbar />
+          {children}
+        </I18nProvider>
       </body>
     </html>
   );

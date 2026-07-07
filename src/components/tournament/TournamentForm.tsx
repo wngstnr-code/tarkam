@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { createWallet } from "@/lib/wallet/createWallet";
 import { addTournament } from "@/lib/db/repo";
 import { SeedPhraseReveal } from "@/components/wallet/SeedPhraseReveal";
+import { useI18n } from "@/lib/i18n/context";
 import type { Tournament } from "@/types";
 
 /**
@@ -16,6 +17,7 @@ import type { Tournament } from "@/types";
  */
 export function TournamentForm() {
   const router = useRouter();
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const [teamCount, setTeamCount] = useState(8);
   const [entryFee, setEntryFee] = useState("50");
@@ -34,11 +36,11 @@ export function TournamentForm() {
 
   async function handleCreate() {
     setError(null);
-    if (!name.trim()) return setError("Nama turnamen wajib diisi");
+    if (!name.trim()) return setError(t("tf.err_name"));
     if (teamCount < 2 || teamCount > 64)
-      return setError("Jumlah tim 2–64");
+      return setError(t("tf.err_count"));
     if (password.length < 8)
-      return setError("Password brankas minimal 8 karakter");
+      return setError(t("tf.err_pw"));
     setBusy(true);
     try {
       const { meta, seedPhrase } = await createWallet(password);
@@ -72,13 +74,9 @@ export function TournamentForm() {
       <div className="space-y-4">
         <div className="border-l-4 border-chart-3 bg-chart-3/15 p-3 text-sm">
           <p className="font-semibold tracking-wide uppercase">
-            ⚠️ Backup seed brankas pool — sekali ini saja
+            {t("tf.backup_warn_title")}
           </p>
-          <p className="text-muted-foreground">
-            Brankas hadiah turnamen ini adalah dompet self-custodial. Catat 12
-            kata di bawah; tanpa ini hadiah tidak bisa dicairkan bila device
-            hilang.
-          </p>
+          <p className="text-muted-foreground">{t("tf.backup_warn_body")}</p>
         </div>
         <SeedPhraseReveal seedPhrase={created.poolSeed} />
         <Button
@@ -87,7 +85,7 @@ export function TournamentForm() {
           size="lg"
           onClick={() => router.push(`/tournament/${created.id}`)}
         >
-          Sudah kucatat — buka turnamen
+          {t("tf.noted_open")}
         </Button>
       </div>
     );
@@ -96,17 +94,17 @@ export function TournamentForm() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="tname">Nama turnamen</Label>
+        <Label htmlFor="tname">{t("tf.name_label")}</Label>
         <Input
           id="tname"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Piala Kemerdekaan RT 05"
+          placeholder={t("tf.name_placeholder")}
         />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="tcount">Jumlah tim</Label>
+          <Label htmlFor="tcount">{t("tf.count_label")}</Label>
           <Input
             id="tcount"
             type="number"
@@ -117,7 +115,7 @@ export function TournamentForm() {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="tfee">Biaya daftar (USDT/tim)</Label>
+          <Label htmlFor="tfee">{t("tf.fee_label")}</Label>
           <Input
             id="tfee"
             inputMode="decimal"
@@ -129,12 +127,14 @@ export function TournamentForm() {
       </div>
       <div className="grid grid-cols-3 gap-4">
         {[
-          ["Juara 1", prize1, setPrize1],
-          ["Juara 2", prize2, setPrize2],
-          ["Juara 3", prize3, setPrize3],
+          [t("tf.rank1"), prize1, setPrize1],
+          [t("tf.rank2"), prize2, setPrize2],
+          [t("tf.rank3"), prize3, setPrize3],
         ].map(([label, value, setter]) => (
           <div key={label as string} className="space-y-2">
-            <Label>{label as string} (USDT)</Label>
+            <Label>
+              {label as string} {t("tf.prize_unit")}
+            </Label>
             <Input
               inputMode="decimal"
               className="text-right font-mono text-secondary tabular-nums"
@@ -147,22 +147,19 @@ export function TournamentForm() {
         ))}
       </div>
       <div className="space-y-2">
-        <Label htmlFor="tpw">Password brankas pool</Label>
+        <Label htmlFor="tpw">{t("tf.pw_label")}</Label>
         <Input
           id="tpw"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Minimal 8 karakter — diminta saat payout"
+          placeholder={t("tf.pw_placeholder")}
         />
-        <p className="text-xs text-muted-foreground">
-          Mengenkripsi seed dompet pool di device ini. Hanya pemegang password
-          yang bisa mencairkan hadiah.
-        </p>
+        <p className="text-xs text-muted-foreground">{t("tf.pw_note")}</p>
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
       <Button onClick={handleCreate} disabled={busy} size="lg" className="w-full">
-        {busy ? "Membuat brankas pool…" : "Buat turnamen + brankas pool"}
+        {busy ? t("tf.creating") : t("tf.create_btn")}
       </Button>
     </div>
   );

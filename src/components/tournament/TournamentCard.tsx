@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { formatUSDT, parseUSDT, shortenAddress } from "@/lib/format";
+import { useI18n } from "@/lib/i18n/context";
 import type { Tournament } from "@/types";
 
 const STATUS: Record<
   Tournament["status"],
-  { label: string; className: string }
+  { labelKey: "card.status_setup" | "card.status_running" | "card.status_finished"; className: string }
 > = {
-  setup: { label: "Pendaftaran", className: "bg-primary text-primary-foreground" },
-  running: { label: "Berjalan", className: "bg-secondary text-secondary-foreground" },
-  finished: { label: "Selesai", className: "bg-muted text-muted-foreground" },
+  setup: { labelKey: "card.status_setup", className: "bg-primary text-primary-foreground" },
+  running: { labelKey: "card.status_running", className: "bg-secondary text-secondary-foreground" },
+  finished: { labelKey: "card.status_finished", className: "bg-muted text-muted-foreground" },
 };
 
 export function TournamentCard({ tournament }: { tournament: Tournament }) {
+  const { t } = useI18n();
   const status = STATUS[tournament.status];
   const targetPot =
     parseUSDT(tournament.entryFee) * BigInt(tournament.teamCount);
@@ -31,7 +33,7 @@ export function TournamentCard({ tournament }: { tournament: Tournament }) {
         <span
           className={`absolute top-0 right-0 rounded-bl-lg border-b border-l border-foreground px-3 py-1 text-xs font-semibold tracking-wide uppercase ${status.className}`}
         >
-          {status.label}
+          {t(status.labelKey)}
         </span>
 
         <h3 className="mb-4 pr-24 font-display text-xl leading-tight">
@@ -41,16 +43,18 @@ export function TournamentCard({ tournament }: { tournament: Tournament }) {
         <div className="mb-4 grid grid-cols-2 gap-4 border-t border-border pt-3">
           <div>
             <p className="mb-1 text-xs tracking-wider text-muted-foreground uppercase">
-              Tim
+              {t("card.teams")}
             </p>
-            <p className="text-sm font-bold">{tournament.teamCount} tim</p>
+            <p className="text-sm font-bold">
+              {t("card.team_unit", { n: tournament.teamCount })}
+            </p>
           </div>
           <div>
             <p className="mb-1 text-xs tracking-wider text-muted-foreground uppercase">
-              Biaya daftar
+              {t("card.entry_fee")}
             </p>
             <p className="font-mono text-sm text-secondary tabular-nums">
-              {tournament.entryFee} USDT/tim
+              {t("card.fee_unit", { fee: tournament.entryFee })}
             </p>
           </div>
         </div>
@@ -58,7 +62,7 @@ export function TournamentCard({ tournament }: { tournament: Tournament }) {
         <div className="mt-auto rounded-lg border border-foreground bg-background p-3">
           <div className="mb-1 flex items-center justify-between">
             <p className="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase">
-              Pot hadiah
+              {t("card.prize_pot")}
               {tournament.status !== "finished" && (
                 <span
                   aria-hidden
@@ -66,7 +70,7 @@ export function TournamentCard({ tournament }: { tournament: Tournament }) {
                 />
               )}
             </p>
-            <p className="text-xs text-muted-foreground">target penuh</p>
+            <p className="text-xs text-muted-foreground">{t("card.full_target")}</p>
           </div>
           <p className="text-right font-mono text-2xl text-secondary tabular-nums">
             {formatUSDT(targetPot)} USDT

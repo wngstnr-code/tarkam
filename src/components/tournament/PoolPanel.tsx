@@ -5,16 +5,18 @@ import { AddressChip } from "@/components/common/AddressChip";
 import { usePoolBalance } from "@/hooks/usePoolBalance";
 import { formatUSDT, parseUSDT } from "@/lib/format";
 import { addressUrl } from "@/lib/chain/config";
+import { useI18n } from "@/lib/i18n/context";
 import type { Tournament } from "@/types";
 
 /** Panel brankas ala papan skor: panel hijau lapangan gelap + garis lapangan. */
 export function PoolPanel({ tournament }: { tournament: Tournament }) {
+  const { t } = useI18n();
   const { balance, error } = usePoolBalance(tournament.poolAddress);
   const target = parseUSDT(tournament.entryFee) * BigInt(tournament.teamCount);
 
   return (
     <section
-      aria-label="Brankas hadiah"
+      aria-label={t("pp.aria")}
       className="shadow-hard relative overflow-hidden rounded-xl border border-foreground bg-[#0e3d20] p-5 text-white"
     >
       {/* Garis lapangan: lingkaran tengah + garis tengah, dekoratif */}
@@ -39,7 +41,7 @@ export function PoolPanel({ tournament }: { tournament: Tournament }) {
         </div>
         <div className="min-w-0 space-y-2">
           <p className="text-xs font-semibold tracking-widest text-white/70 uppercase">
-            Brankas Hadiah — saldo pot live on-chain
+            {t("pp.label")}
           </p>
           <p className="font-mono text-4xl font-bold tabular-nums text-[#7fe0a7]">
             {balance === null ? "—" : formatUSDT(balance)}
@@ -55,14 +57,13 @@ export function PoolPanel({ tournament }: { tournament: Tournament }) {
               target="_blank"
               rel="noreferrer"
             >
-              Audit sendiri di Etherscan →
+              {t("pp.audit")}
             </a>
           </div>
-          <p className="text-xs text-white/50">
-            Alamat publik — siapa pun bisa memantau tanpa akun. Refresh tiap 15
-            detik.
-          </p>
-          {error && <p className="text-xs text-amber-300">RPC error: {error}</p>}
+          <p className="text-xs text-white/50">{t("pp.note")}</p>
+          {error && (
+            <p className="text-xs text-amber-300">{t("pp.rpc_error", { error })}</p>
+          )}
         </div>
       </div>
     </section>

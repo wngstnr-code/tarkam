@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { TournamentCard } from "@/components/tournament/TournamentCard";
 import { useWdkWallet } from "@/hooks/useWdkWallet";
 import { listTournaments } from "@/lib/db/repo";
+import { useI18n } from "@/lib/i18n/context";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const { address, hydrated } = useWdkWallet();
   const tournaments = useLiveQuery(listTournaments, []);
 
@@ -26,26 +28,25 @@ export default function DashboardPage() {
         <div className="relative z-10 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
           <div className="max-w-2xl space-y-3">
             <h1 className="font-display text-4xl leading-none sm:text-6xl">
-              Hadiah turnamen yang{" "}
-              <span className="text-primary">tak bisa dibawa kabur</span>
+              {t("dash.hero_title_1")}{" "}
+              <span className="text-primary">{t("dash.hero_title_2")}</span>
             </h1>
             <p className="text-sm text-muted-foreground sm:text-base">
-              Brankas hadiah on-chain untuk turnamen tarkam — semua orang bisa
-              mengawasi potnya, payout juara tercatat permanen.
+              {t("dash.hero_subtitle")}
             </p>
           </div>
           <Button asChild size="lg" className="px-6 text-base whitespace-nowrap">
-            <Link href="/tournament/new">+ Turnamen Baru</Link>
+            <Link href="/tournament/new">{t("dash.hero_cta")}</Link>
           </Button>
         </div>
       </section>
 
       <section className="space-y-6">
         <div className="flex items-end justify-between border-b-2 border-foreground pb-3">
-          <h2 className="font-display text-2xl">Turnamenmu</h2>
+          <h2 className="font-display text-2xl">{t("dash.your_tournaments")}</h2>
           {tournaments !== undefined && tournaments.length > 0 && (
             <p className="text-xs tracking-wider text-muted-foreground uppercase">
-              {tournaments.length} turnamen
+              {t("dash.count", { n: tournaments.length })}
             </p>
           )}
         </div>
@@ -55,14 +56,13 @@ export default function DashboardPage() {
               ⚽
             </p>
             <p className="mb-1 font-display text-xl text-muted-foreground">
-              Belum ada turnamen
+              {t("dash.empty_title")}
             </p>
             <p className="mb-6 max-w-sm text-sm text-muted-foreground">
-              Area ini masih sepi. Buat yang pertama — brankas hadiah on-chain
-              dibuat otomatis.
+              {t("dash.empty_body")}
             </p>
             <Button asChild variant="outline">
-              <Link href="/tournament/new">Buat yang pertama</Link>
+              <Link href="/tournament/new">{t("dash.empty_cta")}</Link>
             </Button>
           </div>
         ) : (

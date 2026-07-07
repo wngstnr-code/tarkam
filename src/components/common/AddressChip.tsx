@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { addressUrl } from "@/lib/chain/config";
 import { shortenAddress } from "@/lib/format";
+import { useI18n } from "@/lib/i18n/context";
 
 export function AddressChip({
   address,
@@ -11,6 +12,7 @@ export function AddressChip({
   address: string;
   light?: boolean;
 }) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -32,7 +34,7 @@ export function AddressChip({
         target="_blank"
         rel="noreferrer"
         className="hover:underline focus-visible:ring-2 focus-visible:ring-ring"
-        title="Lihat di explorer"
+        title={t("ac.view_explorer")}
       >
         {shortenAddress(address)}
       </a>
@@ -44,8 +46,8 @@ export function AddressChip({
             ? "text-white/70 hover:text-white"
             : "text-muted-foreground hover:text-foreground"
         }`}
-        title="Salin alamat"
-        aria-label="Salin alamat"
+        title={t("ac.copy_addr")}
+        aria-label={t("ac.copy_addr")}
       >
         {copied ? "✓" : "⧉"}
       </button>

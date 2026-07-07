@@ -29,11 +29,13 @@ import { mintTestUsdt } from "@/lib/wallet/mint";
 import { humanizeTxError } from "@/lib/wallet/errors";
 import { formatUSDT, formatEth, parseUSDT, MIN_GAS_WEI } from "@/lib/format";
 import { USDT_ADDRESS } from "@/lib/chain/config";
+import { useI18n } from "@/lib/i18n/context";
 
 const FAUCET_AMOUNT = "1000";
 
 export default function WalletPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const {
     address,
     hydrated,
@@ -80,13 +82,13 @@ export default function WalletPage() {
   return (
     <main className="mx-auto max-w-md space-y-6 p-6 pt-12">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl">Dompet</h1>
-        <Badge variant="outline">Self-custodial · WDK</Badge>
+        <h1 className="font-display text-3xl">{t("w.title")}</h1>
+        <Badge variant="outline">{t("w.badge")}</Badge>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-display text-xl">Saldo USDT</CardTitle>
+          <CardTitle className="font-display text-xl">{t("w.usdt_balance")}</CardTitle>
           <CardDescription>
             <AddressChip address={address} />
           </CardDescription>
@@ -100,7 +102,7 @@ export default function WalletPage() {
           </p>
           <div className="flex items-center justify-between border-t border-border pt-2 text-sm">
             <span className="flex items-center gap-1.5 text-muted-foreground">
-              ⛽ Gas
+              {t("w.gas")}
             </span>
             <span
               className={`font-mono tabular-nums ${
@@ -115,7 +117,7 @@ export default function WalletPage() {
           <GasWarning ethBalance={ethBalance} />
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={refreshBalance}>
-              Muat ulang saldo
+              {t("w.refresh")}
             </Button>
             <Button
               variant="secondary"
@@ -125,25 +127,23 @@ export default function WalletPage() {
                 setShowFaucet(true);
               }}
             >
-              + Isi {FAUCET_AMOUNT} USDT uji
+              {t("w.faucet_btn", { amt: FAUCET_AMOUNT })}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Faucet testnet — mint MockUSDT ke dompetmu. Butuh sedikit Sepolia ETH
-            untuk gas.
-          </p>
+          <p className="text-xs text-muted-foreground">{t("w.faucet_note")}</p>
           {faucetTx && (
-            <TxReceipt hash={faucetTx} label={`+${FAUCET_AMOUNT} USDT uji ✓`} />
+            <TxReceipt
+              hash={faucetTx}
+              label={t("w.faucet_receipt", { amt: FAUCET_AMOUNT })}
+            />
           )}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-display text-xl">Backup</CardTitle>
-          <CardDescription>
-            Lihat lagi seed phrase-mu (butuh password).
-          </CardDescription>
+          <CardTitle className="font-display text-xl">{t("w.backup")}</CardTitle>
+          <CardDescription>{t("w.backup_desc")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {revealedSeed ? (
@@ -154,12 +154,12 @@ export default function WalletPage() {
                 size="sm"
                 onClick={() => setRevealedSeed(null)}
               >
-                Sembunyikan
+                {t("w.hide")}
               </Button>
             </>
           ) : (
             <Button variant="outline" onClick={() => setShowUnlock(true)}>
-              Tampilkan seed phrase
+              {t("w.show_seed")}
             </Button>
           )}
         </CardContent>
@@ -167,11 +167,8 @@ export default function WalletPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-display text-xl">Ganti dompet</CardTitle>
-          <CardDescription>
-            Keluarkan dompet ini dari device, lalu buat atau pulihkan dompet lain
-            saat onboarding.
-          </CardDescription>
+          <CardTitle className="font-display text-xl">{t("w.switch_wallet")}</CardTitle>
+          <CardDescription>{t("w.switch_desc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Button
@@ -182,7 +179,7 @@ export default function WalletPage() {
               setShowLogout(true);
             }}
           >
-            Keluar / ganti akun
+            {t("w.logout_btn")}
           </Button>
         </CardContent>
       </Card>
@@ -196,14 +193,13 @@ export default function WalletPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Keluarkan dompet dari device?</DialogTitle>
+            <DialogTitle>{t("w.logout_title")}</DialogTitle>
             <DialogDescription>
-              Seed terenkripsi dompet ini akan dihapus dari device. Tanpa catatan
-              seed phrase, dompet dan saldonya{" "}
+              {t("w.logout_desc_1")}{" "}
               <span className="font-semibold text-destructive">
-                tidak bisa dipulihkan
+                {t("w.logout_desc_strong")}
               </span>
-              . Data turnamen lokal tetap ada.
+              {t("w.logout_desc_2")}
             </DialogDescription>
           </DialogHeader>
           <label className="flex items-start gap-2 rounded-lg border border-foreground bg-muted/40 p-3 text-sm">
@@ -213,14 +209,11 @@ export default function WalletPage() {
               checked={ackBackup}
               onChange={(e) => setAckBackup(e.target.checked)}
             />
-            <span>
-              Saya sudah mencatat seed phrase dan paham dompet ini akan hilang
-              dari device.
-            </span>
+            <span>{t("w.logout_ack")}</span>
           </label>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowLogout(false)}>
-              Batal
+              {t("w.cancel")}
             </Button>
             <Button
               variant="secondary"
@@ -228,7 +221,7 @@ export default function WalletPage() {
               disabled={!ackBackup}
               onClick={handleLogout}
             >
-              Keluarkan dompet
+              {t("w.logout_confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -237,8 +230,8 @@ export default function WalletPage() {
       <UnlockDialog
         open={showUnlock}
         onOpenChange={setShowUnlock}
-        title="Tampilkan seed phrase"
-        description="Pastikan tidak ada orang lain yang melihat layarmu."
+        title={t("w.unlock_seed_title")}
+        description={t("w.unlock_seed_desc")}
         onUnlock={async (pw) => {
           setRevealedSeed(await unlockSeed(pw));
         }}
@@ -247,9 +240,9 @@ export default function WalletPage() {
       <UnlockDialog
         open={showFaucet}
         onOpenChange={setShowFaucet}
-        title={`Isi ${FAUCET_AMOUNT} USDT uji`}
-        description="Masukkan password untuk menandatangani mint MockUSDT ke dompetmu."
-        confirmLabel="Mint USDT uji"
+        title={t("w.faucet_title", { amt: FAUCET_AMOUNT })}
+        description={t("w.faucet_unlock_desc")}
+        confirmLabel={t("w.faucet_confirm")}
         onUnlock={handleFaucet}
       />
     </main>

@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/lib/i18n/context";
 
 export function SeedPhraseReveal({ seedPhrase }: { seedPhrase: string }) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const words = seedPhrase.split(" ");
 
@@ -29,14 +31,12 @@ export function SeedPhraseReveal({ seedPhrase }: { seedPhrase: string }) {
         ))}
       </ol>
       <Button type="button" variant="outline" size="sm" onClick={copy}>
-        {copied ? "Tersalin ✓" : "⧉ Salin seed phrase"}
+        {copied ? t("sp.copied") : t("sp.copy")}
       </Button>
       <div className="flex items-start gap-2 border-l-4 border-chart-3 bg-chart-3/15 p-3 text-sm">
         <span aria-hidden>⚠️</span>
         <p>
-          <strong>Catat di kertas.</strong> Siapa pun yang memegang kata-kata
-          ini memegang uangnya. Tarkam tidak menyimpan salinan — hilang berarti
-          hilang.
+          <strong>{t("sp.warn_strong")}</strong> {t("sp.warn_body")}
         </p>
       </div>
     </div>

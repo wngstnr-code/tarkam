@@ -17,6 +17,7 @@ import { decryptSeed } from "@/lib/wallet/crypto";
 import { transferUsdt } from "@/lib/wallet/transfer";
 import { addPayout, updatePayout } from "@/lib/db/repo";
 import { formatUSDT, parseUSDT, shortenAddress } from "@/lib/format";
+import { useI18n } from "@/lib/i18n/context";
 import type { Team, Tournament } from "@/types";
 
 interface PayoutDialogProps {
@@ -42,6 +43,7 @@ export function PayoutDialog({
   amount,
   onPaid,
 }: PayoutDialogProps) {
+  const { t } = useI18n();
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,24 +85,21 @@ export function PayoutDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="font-display text-xl">
-            Bayar hadiah juara {rank}
+            {t("pd.title", { n: rank })}
           </DialogTitle>
-          <DialogDescription>
-            Transfer USDT on-chain dari brankas pool — permanen dan publik.
-            Periksa baik-baik.
-          </DialogDescription>
+          <DialogDescription>{t("pd.desc")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2 rounded-lg border border-foreground/25 bg-muted/40 p-4 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-xs tracking-wider text-muted-foreground uppercase">
-              Penerima
+              {t("pd.recipient")}
             </span>
             <span className="font-bold">{team.name}</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-xs tracking-wider text-muted-foreground uppercase">
-              Dompet
+              {t("pd.wallet")}
             </span>
             <span className="rounded bg-muted px-2 py-0.5 font-mono text-xs">
               {team.captainAddress ? shortenAddress(team.captainAddress, 6) : "—"}
@@ -109,7 +108,7 @@ export function PayoutDialog({
           <Separator />
           <div className="flex items-end justify-between">
             <span className="text-xs tracking-wider text-muted-foreground uppercase">
-              Total payout
+              {t("pd.total")}
             </span>
             <span className="font-mono text-xl font-bold text-secondary tabular-nums">
               {formatUSDT(parseUSDT(amount))} USDT
@@ -118,13 +117,10 @@ export function PayoutDialog({
         </div>
 
         {!team.captainAddress ? (
-          <p className="text-sm text-destructive">
-            Tim ini belum punya alamat dompet kapten — tambahkan dulu di daftar
-            tim.
-          </p>
+          <p className="text-sm text-destructive">{t("pd.no_addr")}</p>
         ) : (
           <div className="space-y-2">
-            <Label htmlFor="pool-pw">Password brankas pool</Label>
+            <Label htmlFor="pool-pw">{t("pd.pw_label")}</Label>
             <Input
               id="pool-pw"
               type="password"
@@ -138,13 +134,13 @@ export function PayoutDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Batal
+            {t("pd.cancel")}
           </Button>
           <Button
             onClick={handlePayout}
             disabled={busy || !password || !team.captainAddress}
           >
-            {busy ? "Menandatangani & broadcast…" : "Approve & kirim"}
+            {busy ? t("pd.signing") : t("pd.approve")}
           </Button>
         </DialogFooter>
       </DialogContent>
