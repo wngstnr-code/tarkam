@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { CreateWalletFlow } from "@/components/wallet/CreateWalletFlow";
 import { RestoreWalletForm } from "@/components/wallet/RestoreWalletForm";
+import { Logo } from "@/components/common/Logo";
 
 export default function OnboardingPage() {
   const [mode, setMode] = useState<"create" | "restore">("create");
@@ -17,9 +18,7 @@ export default function OnboardingPage() {
   return (
     <main className="mx-auto max-w-md space-y-6 p-6 pt-12">
       <div className="space-y-2 text-center">
-        <p className="font-display text-lg text-primary" aria-hidden>
-          ⚽ Tarkam
-        </p>
+        <Logo className="justify-center text-lg" iconClassName="size-5" />
         <h1 className="font-display text-3xl">Dompet kamu, kunci kamu</h1>
         <p className="text-sm text-muted-foreground">
           Seed phrase dibuat dan tersimpan terenkripsi di device ini — tidak
