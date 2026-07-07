@@ -39,8 +39,8 @@ Tarkam moves the prize pot into a **self-custodial USDT wallet with a public add
 
 ## Demo
 
-- **Live app:** _(add before submitting)_
-- **Video (≤3 min, unlisted YouTube):** _(add before submitting)_
+- **Live app:** [https://tarkam.vercel.app](https://tarkam.vercel.app)
+- **Video (≤3 min, unlisted YouTube):** [https://youtu.be/CUrzHlDYxN0](https://youtu.be/CUrzHlDYxN0)
 - **Real on-chain golden flow** (Sepolia, zero mocks):
   - WDK ERC-20 transfer validation: [`0x91739f…68af3`](https://sepolia.etherscan.io/tx/0x91739f89ff3001cee39a67f4f0c8603a0608540a6aedf31adbf8ef5249e68af3)
   - Prize payout executed from the UI: [`0xaaa9b8…ab6112`](https://sepolia.etherscan.io/tx/0xaaa9b802bf1e9d46aafec75be7468a0dfe89ea2140fc2ee404f717e7c4ab6112)
