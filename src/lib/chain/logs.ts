@@ -251,3 +251,105 @@ export async function fetchEscrowActivity(escrowId: number): Promise<PoolEvent[]
 
   return withTimestamps(rawEvents);
 }
+
+// ── Event governance TarkamEscrow (M-of-N approval) ──────────────────────
+// Topic0 tiap event tata kelola (hardcode dari ABI, sama seperti event dana).
+const TOURNAMENT_CREATED_TOPIC =
+  "0x7a45ecfe12194d3e69ddaf8aaa8c54da91b8a6581bd961a93d3cc1392740cc52"; // TournamentCreated(uint256,address,...)
+const PAYOUT_PROPOSED_TOPIC =
+  "0xd7fc8c45525208db33112345d6fb92adf157c9cdd4a5beffa0afd1c829f0460c"; // PayoutProposed(uint256,address[])
+const PAYOUT_APPROVED_TOPIC =
+  "0xec52a43e6a13721d3c406557f3e987e7d725387bcaa60193d13f1c8d600cb11e"; // PayoutApproved(uint256,address,uint256)
+const TOURNAMENT_CANCELLED_TOPIC =
+  "0xfa61ec8d7e5a58ceba17772b10ba0c6caa65b40b200302be35f00efc264c7895"; // TournamentCancelled(uint256)
+
+export type GovernanceEvent = {
+  kind: "created" | "proposed" | "approved" | "cancelled";
+  actor?: string;
+  approvals?: number;
+  winners?: string[];
+  txHash: string;
+  blockNumber: number;
+  timestamp: number;
+};
+
+/** Decode array `address[]` dari data log (offset dinamis standar ABI). */
+function decodeAddressArray(data: string): string[] {
+  const length = Number(dataWord(data, 1));
+  const winners: string[] = [];
+  for (let i = 0; i < length; i++) {
+    const word = dataWord(data, 2 + i);
+    winners.push("0x" + word.toString(16).padStart(40, "0"));
+  }
+  return winners;
+}
+
+/**
+ * Ambil timeline event tata kelola (M-of-N approval) SATU turnamen escrow:
+ * pembuatan, usulan pemenang, tiap persetujuan, dan pembatalan.
+ * Diurutkan kronologis (blok terlama dulu) supaya enak dibaca dari atas.
+ */
+export async function fetchEscrowGovernance(escrowId: number): Promise<GovernanceEvent[]> {
+  const idTopic = "0x" + escrowId.toString(16).padStart(64, "0");
+
+  const [created, proposed, approved, cancelled] = await Promise.all([
+    getLogsWithFallback(ESCROW_ADDRESS, [TOURNAMENT_CREATED_TOPIC, idTopic], ESCROW_DEPLOY_BLOCK),
+    getLogsWithFallback(ESCROW_ADDRESS, [PAYOUT_PROPOSED_TOPIC, idTopic], ESCROW_DEPLOY_BLOCK),
+    getLogsWithFallback(ESCROW_ADDRESS, [PAYOUT_APPROVED_TOPIC, idTopic], ESCROW_DEPLOY_BLOCK),
+    getLogsWithFallback(ESCROW_ADDRESS, [TOURNAMENT_CANCELLED_TOPIC, idTopic], ESCROW_DEPLOY_BLOCK),
+  ]);
+
+  const base = (log: JsonRpcLog) => ({
+    txHash: log.transactionHash,
+    blockNumber: Number(BigInt(log.blockNumber)),
+    blockHex: log.blockNumber,
+  });
+
+  const rawEvents = [
+    // TournamentCreated: organizer membuat turnamen escrow.
+    ...created.map((log) => ({
+      kind: "created" as const,
+      actor: topicToAddress(log.topics[2]),
+      ...base(log),
+    })),
+    // PayoutProposed: usulan daftar pemenang untuk disetujui.
+    ...proposed.map((log) => ({
+      kind: "proposed" as const,
+      winners: decodeAddressArray(log.data),
+      ...base(log),
+    })),
+    // PayoutApproved: satu pihak menyetujui, dengan hitungan approval berjalan.
+    ...approved.map((log) => ({
+      kind: "approved" as const,
+      actor: topicToAddress(log.topics[2]),
+      approvals: Number(dataWord(log.data, 0)),
+      ...base(log),
+    })),
+    // TournamentCancelled: turnamen dibatalkan, refund dibuka.
+    ...cancelled.map((log) => ({
+      kind: "cancelled" as const,
+      ...base(log),
+    })),
+  ];
+
+  // withTimestamps mengasumsikan bentuk PoolEvent, jadi lengkapi timestamp sendiri.
+  const uniqueBlockHex = Array.from(new Set(rawEvents.map((e) => e.blockHex)));
+  const timestampByBlock = new Map<string, number>();
+  await Promise.all(
+    uniqueBlockHex.map(async (blockHex) => {
+      const block = await rpcCall<{ timestamp: string }>("eth_getBlockByNumber", [
+        blockHex,
+        false,
+      ]);
+      timestampByBlock.set(blockHex, Number(BigInt(block.timestamp)));
+    })
+  );
+
+  const events: GovernanceEvent[] = rawEvents.map(({ blockHex, ...e }) => ({
+    ...e,
+    timestamp: timestampByBlock.get(blockHex) ?? 0,
+  }));
+
+  events.sort((a, b) => a.blockNumber - b.blockNumber);
+  return events;
+}

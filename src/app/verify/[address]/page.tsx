@@ -10,7 +10,9 @@ import { TestnetBanner } from "@/components/common/TestnetBanner";
 import { addressUrl, txUrl } from "@/lib/chain/config";
 import {
   fetchEscrowActivity,
+  fetchEscrowGovernance,
   fetchPoolActivity,
+  type GovernanceEvent,
   type PoolEvent,
 } from "@/lib/chain/logs";
 import { formatUSDT, shortenAddress } from "@/lib/format";
@@ -27,6 +29,7 @@ function VerifyPageInner({ params }: { params: Promise<{ address: string }> }) {
   const escrowId = escrowIdParam !== null ? Number(escrowIdParam) : null;
 
   const [events, setEvents] = useState<PoolEvent[] | null>(null);
+  const [gov, setGov] = useState<GovernanceEvent[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,11 +37,14 @@ function VerifyPageInner({ params }: { params: Promise<{ address: string }> }) {
     setLoading(true);
     setError(null);
     try {
-      const result =
-        escrowId !== null && Number.isFinite(escrowId)
-          ? await fetchEscrowActivity(escrowId)
-          : await fetchPoolActivity(address);
+      const isEscrow = escrowId !== null && Number.isFinite(escrowId);
+      const [result, governance] = await Promise.all([
+        isEscrow ? fetchEscrowActivity(escrowId as number) : fetchPoolActivity(address),
+        // Governance opsional: gagal fetch tidak boleh menggagalkan halaman.
+        isEscrow ? fetchEscrowGovernance(escrowId as number).catch(() => []) : Promise.resolve([]),
+      ]);
       setEvents(result);
+      setGov(governance);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -192,6 +198,70 @@ function VerifyPageInner({ params }: { params: Promise<{ address: string }> }) {
           </ul>
         )}
       </section>
+
+      {/* Section governance: hanya muncul di mode escrow (escrowId ada di query) */}
+      {escrowId !== null && (
+        <section className="space-y-3">
+          <h2 className="font-display text-xl">{t("vf.gov_title")}</h2>
+
+          {!loading && !error && gov && gov.length === 0 && (
+            <p className="text-sm text-muted-foreground">{t("vf.gov_empty")}</p>
+          )}
+
+          {!loading && !error && gov && gov.length > 0 && (
+            <ul className="space-y-2">
+              {gov.map((e) => (
+                <li key={e.txHash + e.kind}>
+                  <Card size="sm">
+                    <CardContent className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <Badge variant="secondary">
+                          {e.kind === "created" && t("vf.g_created")}
+                          {e.kind === "proposed" &&
+                            t("vf.g_proposed", { n: e.winners?.length ?? 0 })}
+                          {e.kind === "approved" &&
+                            t("vf.g_approved", { n: e.approvals ?? 0 })}
+                          {e.kind === "cancelled" && t("vf.g_cancelled")}
+                        </Badge>
+                        <div>
+                          {(e.kind === "created" || e.kind === "approved") && e.actor && (
+                            <p className="text-xs">
+                              <a
+                                href={addressUrl(e.actor)}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="font-mono hover:underline"
+                              >
+                                {shortenAddress(e.actor)}
+                              </a>
+                            </p>
+                          )}
+                          {e.kind === "proposed" && e.winners && e.winners.length > 0 && (
+                            <p className="font-mono text-xs">
+                              {e.winners.map((w) => shortenAddress(w)).join(", ")}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(e.timestamp * 1000).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <a
+                        href={txUrl(e.txHash)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="shrink-0 text-xs text-primary underline underline-offset-2 hover:no-underline"
+                      >
+                        {t("vf.open_explorer")}
+                      </a>
+                    </CardContent>
+                  </Card>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
 
       <footer className="pt-2 text-center text-xs text-muted-foreground">
         {t("vf.footer")}
