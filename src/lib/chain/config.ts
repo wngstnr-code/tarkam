@@ -60,3 +60,22 @@ export const EXPLORER_BASE =
 
 export const txUrl = (hash: string) => `${EXPLORER_BASE}/tx/${hash}`;
 export const addressUrl = (addr: string) => `${EXPLORER_BASE}/address/${addr}`;
+
+/**
+ * Konfigurasi jalur gasless (WDK `wdk-wallet-evm-7702-gasless`, EIP-7702 +
+ * ERC-4337). Env-gated: tanpa `NEXT_PUBLIC_BUNDLER_URL` fitur ini tidak
+ * pernah dipakai, sehingga app berperilaku identik dengan jalur klasik.
+ */
+export const BUNDLER_URL = process.env.NEXT_PUBLIC_BUNDLER_URL ?? "";
+
+/** ID kebijakan sponsorship paymaster (opsional — bergantung provider). */
+export const SPONSORSHIP_POLICY_ID =
+  process.env.NEXT_PUBLIC_SPONSORSHIP_POLICY_ID ?? "";
+
+/** Alamat implementasi smart account tempat EOA didelegasikan (EIP-7702). */
+export const DELEGATION_ADDRESS =
+  process.env.NEXT_PUBLIC_DELEGATION_ADDRESS ??
+  "0xe6Cae83BdE06E4c305530e199D7217f42808555B";
+
+/** Jalur gasless aktif hanya bila bundler URL disetel lewat env. */
+export const GASLESS_ENABLED = BUNDLER_URL.length > 0;

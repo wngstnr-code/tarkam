@@ -19,6 +19,7 @@ import { useWdkWallet } from "@/hooks/useWdkWallet";
 import { transferUsdt } from "@/lib/wallet/transfer";
 import { depositEscrow } from "@/lib/escrow/write";
 import { humanizeTxError } from "@/lib/wallet/errors";
+import { GASLESS_ENABLED } from "@/lib/chain/config";
 import { addTeam } from "@/lib/db/repo";
 import { parseUSDT } from "@/lib/format";
 import { useI18n } from "@/lib/i18n/context";
@@ -148,7 +149,8 @@ export function AddTeamDialog({
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <GasWarning ethBalance={ethBalance} />
+              {/* Deposit escrow ikut jalur gasless bila aktif — transfer simple selalu klasik. */}
+              {!(isEscrow && GASLESS_ENABLED) && <GasWarning ethBalance={ethBalance} />}
               <div className="space-y-2">
                 <Label htmlFor="team-name">{t("at.team_name")}</Label>
                 <Input

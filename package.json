@@ -6,10 +6,12 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --import tsx --test test/*.test.mjs test/*.test.mts"
   },
   "dependencies": {
     "@tetherto/wdk-wallet-evm": "^1.0.0-beta.15",
+    "@tetherto/wdk-wallet-evm-7702-gasless": "^1.0.0-beta.1",
     "buffer": "^6.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
