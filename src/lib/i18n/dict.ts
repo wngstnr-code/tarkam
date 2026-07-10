@@ -424,6 +424,21 @@ export const dict = {
   "vf.k_prize": { en: "Prize", id: "Hadiah" },
   "vf.k_refund": { en: "Refund", id: "Refund" },
   "vf.k_surplus": { en: "Organizer surplus", id: "Surplus panitia" },
+  "vf.gov_title": {
+    en: "Approval timeline (M-of-N)",
+    id: "Linimasa persetujuan (M-of-N)",
+  },
+  "vf.gov_empty": { en: "No governance events yet.", id: "Belum ada event tata kelola." },
+  "vf.g_created": { en: "Tournament created", id: "Turnamen dibuat" },
+  "vf.g_proposed": { en: "Winners proposed ({n})", id: "Pemenang diusulkan ({n})" },
+  "vf.g_approved": {
+    en: "Approved — {n} approval(s) in",
+    id: "Disetujui — {n} persetujuan masuk",
+  },
+  "vf.g_cancelled": {
+    en: "Tournament cancelled — refunds open",
+    id: "Turnamen dibatalkan — refund dibuka",
+  },
 
   // ── Tournament form: mode brankas (simple vs escrow) ────────────────────
   "tf.mode_label": { en: "Prize vault mode", id: "Mode brankas hadiah" },
@@ -584,4 +599,241 @@ export const dict = {
     id: "WDK menandatangani klaimnya; dana selalu masuk ke dompet tim.",
   },
   "er.refund_confirm": { en: "Sign & send", id: "Tanda tangan & kirim" },
+
+  // ── Join page (/join/[escrowId]) ────────────────────────────────────────
+  "jn.title": { en: "Join tournament #{id}", id: "Gabung Turnamen #{id}" },
+  "jn.escrow_badge": { en: "On-chain escrow", id: "Escrow on-chain" },
+  "jn.contract_label": { en: "Escrow contract", id: "Kontrak escrow" },
+  "jn.open_explorer": { en: "Open in explorer", id: "Buka di explorer" },
+  "jn.verify_link": { en: "View public audit trail", id: "Lihat jejak audit publik" },
+  "jn.invalid_id": {
+    en: "Invalid escrow link — the tournament id must be a number.",
+    id: "Link escrow tidak valid — id turnamen harus berupa angka.",
+  },
+  "jn.loading": { en: "Loading tournament data from the contract…", id: "Memuat data turnamen dari kontrak…" },
+  "jn.load_error": {
+    en: "Couldn't load tournament data: {error}",
+    id: "Gagal memuat data turnamen: {error}",
+  },
+  "jn.retry": { en: "Retry", id: "Coba lagi" },
+  "jn.summary_title": { en: "Tournament summary", id: "Ringkasan turnamen" },
+  "jn.entry_fee": { en: "Entry fee", id: "Biaya daftar" },
+  "jn.pot": { en: "Current pot", id: "Pot saat ini" },
+  "jn.team_count": { en: "Teams joined", id: "Tim terdaftar" },
+  "jn.prizes_title": { en: "Prizes", id: "Hadiah" },
+  "jn.prize_rank": { en: "Rank {n}", id: "Peringkat {n}" },
+  "jn.approvals": { en: "Approvals", id: "Persetujuan" },
+  "jn.status_open": { en: "Open for registration", id: "Terbuka untuk pendaftaran" },
+  "jn.status_proposed": { en: "Winners proposed — awaiting approval", id: "Pemenang diusulkan — menunggu persetujuan" },
+  "jn.status_paid": { en: "Prizes paid", id: "Hadiah sudah dibayar" },
+  "jn.status_cancelled": { en: "Cancelled — refunds open", id: "Dibatalkan — refund dibuka" },
+  "jn.no_wallet_title": { en: "You need a wallet first", id: "Kamu butuh dompet dulu" },
+  "jn.no_wallet_desc": {
+    en: "Create or restore your own self-custodial wallet, then come back and open this link (or scan the QR) again to register your team.",
+    id: "Buat atau pulihkan dompetmu sendiri dulu, lalu buka lagi link ini (atau scan ulang QR-nya) untuk mendaftarkan timmu.",
+  },
+  "jn.no_wallet_btn": { en: "Set up my wallet", id: "Siapkan dompetku" },
+  "jn.your_wallet": { en: "Your wallet", id: "Dompetmu" },
+  "jn.deposit_title": { en: "Register your team", id: "Daftarkan timmu" },
+  "jn.deposit_desc": {
+    en: "Paying the entry fee registers your wallet address as the team's captain — the deposit is locked in the escrow contract until payout or refund.",
+    id: "Membayar biaya daftar mendaftarkan alamat dompetmu sebagai kapten tim — setoran terkunci di kontrak escrow sampai payout atau refund.",
+  },
+  "jn.balance_low": {
+    en: "Your USDT balance ({balance}) is lower than the entry fee ({fee}). Top up your wallet first.",
+    id: "Saldo USDT dompetmu ({balance}) lebih kecil dari biaya daftar ({fee}). Isi dulu dompetmu.",
+  },
+  "jn.go_wallet": { en: "Go to wallet", id: "Buka halaman dompet" },
+  "jn.deposit_btn": { en: "Pay deposit & register", id: "Bayar deposit & daftar" },
+  "jn.deposit_unlock_title": { en: "Pay deposit", id: "Bayar deposit" },
+  "jn.deposit_unlock_desc": {
+    en: "WDK signs the approval and deposit transactions from your wallet.",
+    id: "WDK menandatangani transaksi approve & deposit dari dompetmu.",
+  },
+  "jn.registered_title": { en: "Registered ✓", id: "Terdaftar ✓" },
+  "jn.registered_desc": {
+    en: "Your deposit of {amount} USDT is locked in the escrow contract.",
+    id: "Setoranmu sebesar {amount} USDT terkunci di kontrak escrow.",
+  },
+  "jn.proposed_title": { en: "Proposed winners", id: "Usulan pemenang" },
+  "jn.you_are_winner": { en: "This is you! 🎉", id: "Ini kamu! 🎉" },
+  "jn.approve_btn": { en: "Approve payout", id: "Setujui payout" },
+  "jn.approve_unlock_title": { en: "Approve payout", id: "Setujui payout" },
+  "jn.approve_unlock_desc": {
+    en: "You're approving the proposed winners as a depositor team.",
+    id: "Kamu menyetujui usulan pemenang sebagai tim penyetor.",
+  },
+  "jn.already_approved": {
+    en: "You've already approved this payout.",
+    id: "Kamu sudah menyetujui payout ini.",
+  },
+  "jn.not_depositor": {
+    en: "Only teams that deposited can approve the payout.",
+    id: "Hanya tim yang sudah setor yang bisa menyetujui payout.",
+  },
+  "jn.paid_title": { en: "Prizes paid by the contract", id: "Hadiah sudah dibayar kontrak" },
+  "jn.paid_desc": {
+    en: "The escrow contract has paid out every prize in a single transaction.",
+    id: "Kontrak escrow sudah membayar semua hadiah dalam satu transaksi.",
+  },
+  "jn.refund_title": { en: "Refund available", id: "Refund tersedia" },
+  "jn.refund_desc": {
+    en: "This tournament won't proceed. You can claim your deposit back — it always goes straight to your own wallet.",
+    id: "Turnamen ini tidak dilanjutkan. Kamu bisa menarik kembali setoranmu — dananya selalu langsung masuk ke dompetmu sendiri.",
+  },
+  "jn.refund_btn": { en: "Withdraw refund", id: "Tarik refund" },
+  "jn.refund_unlock_title": { en: "Claim refund", id: "Tarik refund" },
+  "jn.refund_unlock_desc": {
+    en: "WDK signs the claim; the funds always go to your wallet.",
+    id: "WDK menandatangani klaimnya; dana selalu masuk ke dompetmu.",
+  },
+  "jn.no_deposit_refund": {
+    en: "You don't have a deposit to refund for this tournament.",
+    id: "Kamu tidak punya setoran untuk direfund pada turnamen ini.",
+  },
+  "jn.unlock_confirm": { en: "Sign & send", id: "Tanda tangan & kirim" },
+  "jn.receipt": { en: "Transaction", id: "Transaksi" },
+  "jn.footer": {
+    en: "This page reads directly from the smart contract on Sepolia — no data from the organizer's device is used.",
+    id: "Halaman ini membaca langsung dari smart contract di Sepolia — tidak memakai data dari perangkat panitia.",
+  },
+
+  // ── Gasless (EIP-7702 + ERC-4337, WDK wdk-wallet-evm-7702-gasless) ────────
+  "gl.badge": {
+    en: "⛽ Gasless — sponsored gas via WDK (EIP-7702)",
+    id: "⛽ Gasless — gas disponsori via WDK (EIP-7702)",
+  },
+
+  // ── ShareJoinLink ────────────────────────────────────────────────────────
+  "sj.title": { en: "Invite captains", id: "Undang kapten" },
+  "sj.desc": {
+    en: "Share this link or QR with team captains so they can register and pay their own entry fee from their own wallet.",
+    id: "Bagikan link atau QR ini ke kapten tim supaya mereka bisa mendaftar dan membayar biaya daftar dari dompetnya sendiri.",
+  },
+  "sj.copy": { en: "Copy link", id: "Salin link" },
+  "sj.copied": { en: "Copied!", id: "Tersalin!" },
+
+  // ── AssistantPanel (Wasit AI) ───────────────────────────────────────────
+  "as.title": { en: "Wasit AI", id: "Wasit AI" },
+  "as.badge": { en: "rule-based · QVAC-ready", id: "rule-based · siap QVAC" },
+  "as.desc": {
+    en: "A local rule-based assistant version, built to be swapped for the QVAC model later. No action ever runs without your approval.",
+    id: "Versi asisten rule-based lokal, dibangun untuk ditukar model QVAC nanti. Tidak ada aksi yang berjalan tanpa persetujuanmu.",
+  },
+  "as.placeholder": {
+    en: 'try: "make bracket", "propose payout", "status"',
+    id: 'coba: "bikin bracket", "siapkan payout", "status"',
+  },
+  "as.send": { en: "Send", id: "Kirim" },
+  "as.approve": { en: "Approve & run", id: "Setujui & jalankan" },
+  "as.cancel_btn": { en: "Cancel", id: "Batal" },
+  "as.empty": {
+    en: "No messages yet. Try asking for the tournament status.",
+    id: "Belum ada percakapan. Coba tanya status turnamen dulu.",
+  },
+  "as.draft.create_bracket.title": { en: "Create bracket", id: "Buat bracket" },
+  "as.draft.create_bracket.detail": {
+    en: "{n} paid teams will enter the bracket:",
+    id: "{n} tim yang sudah bayar akan masuk bracket:",
+  },
+  "as.draft.propose_payout.title": { en: "Propose payout", id: "Usulkan payout" },
+  "as.draft.propose_payout.note": {
+    en: "Needs approval from {n} teams once proposed.",
+    id: "Butuh persetujuan {n} tim setelah diusulkan.",
+  },
+  "as.draft.cancel_tournament.title": {
+    en: "Cancel tournament",
+    id: "Batalkan turnamen",
+  },
+  "as.draft.cancel_tournament.detail": {
+    en: "All teams will be able to claim a refund. This cannot be undone.",
+    id: "Semua tim bisa menarik refund. Tidak bisa dibatalkan.",
+  },
+  "as.guard.bracket_not_setup": {
+    en: "Bracket can only be created while registration is still open (status: setup).",
+    id: "Bracket hanya bisa dibuat saat masih tahap pendaftaran (status: setup).",
+  },
+  "as.guard.not_enough_teams": {
+    en: "At least 2 paid teams are needed to create a bracket ({n} paid so far).",
+    id: "Butuh minimal 2 tim yang sudah bayar untuk membuat bracket (baru {n} yang bayar).",
+  },
+  "as.guard.payout_not_escrow": {
+    en: "Payout proposals are only available for escrow-mode tournaments.",
+    id: "Usulan payout hanya tersedia untuk turnamen mode escrow.",
+  },
+  "as.guard.payout_not_finished": {
+    en: "The bracket isn't finished yet — there's no champion to pay out.",
+    id: "Bracket belum selesai — belum ada juara untuk dibayar.",
+  },
+  "as.guard.payout_missing_address": {
+    en: "Some winning teams don't have a captain wallet address set yet.",
+    id: "Beberapa tim pemenang belum mengatur alamat dompet kapten.",
+  },
+  "as.guard.payout_duplicate_address": {
+    en: "Two winning teams share the same wallet address — fix this before proposing payout.",
+    id: "Dua tim pemenang memakai alamat dompet yang sama — perbaiki dulu sebelum mengusulkan payout.",
+  },
+  "as.guard.payout_row_mismatch": {
+    en: "The number of winners doesn't match the number of prizes yet.",
+    id: "Jumlah pemenang belum sesuai dengan jumlah hadiah.",
+  },
+  "as.guard.cancel_not_escrow": {
+    en: "Only escrow-mode tournaments can be cancelled from here.",
+    id: "Hanya turnamen mode escrow yang bisa dibatalkan lewat sini.",
+  },
+  "as.guard.cancel_already_paid": {
+    en: "This tournament has already been paid out on-chain — it can no longer be cancelled.",
+    id: "Turnamen ini sudah dibayar on-chain — tidak bisa dibatalkan lagi.",
+  },
+  "as.guard.cancel_already_cancelled": {
+    en: "This tournament is already cancelled — teams can claim their refunds now.",
+    id: "Turnamen ini sudah dibatalkan — tim sudah bisa menarik refund.",
+  },
+  "as.unknown": {
+    en: 'I didn\'t catch that. Try: "make bracket", "propose payout", "cancel tournament", or "status".',
+    id: 'Aku belum paham. Coba: "bikin bracket", "siapkan payout", "batalkan turnamen", atau "status".',
+  },
+  "as.status.header": { en: "Tournament status: {status}", id: "Status turnamen: {status}" },
+  "as.status.teams": { en: "Paid teams: {paid}/{total}", id: "Tim bayar: {paid}/{total}" },
+  "as.status.bracket_none": { en: "Bracket: not created yet", id: "Bracket: belum dibuat" },
+  "as.status.bracket_running": { en: "Bracket: in progress", id: "Bracket: sedang berjalan" },
+  "as.status.bracket_finished": {
+    en: "Bracket: finished — champion {name}",
+    id: "Bracket: selesai — juara {name}",
+  },
+  "as.status.escrow_pot": { en: "On-chain pot: {pot} USDT", id: "Pot on-chain: {pot} USDT" },
+  "as.status.escrow_approvals": {
+    en: "Approvals: {approvals}/{threshold}",
+    id: "Persetujuan: {approvals}/{threshold}",
+  },
+  "as.status.escrow_status": {
+    en: "Escrow contract status: {status}",
+    id: "Status kontrak escrow: {status}",
+  },
+  "as.result.create_bracket_done": {
+    en: "Bracket created! The tournament is now running.",
+    id: "Bracket berhasil dibuat! Turnamen sekarang berjalan.",
+  },
+  "as.result.propose_payout_done": {
+    en: "Payout proposed on-chain.",
+    id: "Payout berhasil diusulkan on-chain.",
+  },
+  "as.result.cancel_done": {
+    en: "Tournament cancelled. Teams can now claim a refund.",
+    id: "Turnamen dibatalkan. Tim sekarang bisa menarik refund.",
+  },
+  "as.result.error": { en: "Something went wrong: {message}", id: "Terjadi kesalahan: {message}" },
+  "as.unlock.propose_title": {
+    en: "Sign payout proposal",
+    id: "Tanda tangani usulan payout",
+  },
+  "as.unlock.cancel_title": {
+    en: "Sign tournament cancellation",
+    id: "Tanda tangani pembatalan turnamen",
+  },
+  "as.unlock.desc": {
+    en: "Enter your wallet password to sign this transaction.",
+    id: "Masukkan password dompetmu untuk menandatangani transaksi ini.",
+  },
+  "as.unlock.confirm": { en: "Sign & send", id: "Tanda tangan & kirim" },
 } satisfies Record<string, Entry>;

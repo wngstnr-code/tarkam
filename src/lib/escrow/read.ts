@@ -17,6 +17,23 @@ export interface EscrowTournamentState {
   approvals: number;
 }
 
+/**
+ * Refund terbuka bila turnamen dibatalkan ATAU refund-deadline lewat sebelum
+ * hadiah dibayar (proteksi "panitia menghilang" — sama dengan aturan
+ * claimRefund di kontrak). Satu-satunya sumber kebenaran untuk semua UI.
+ */
+export function isRefundOpen(
+  state: Pick<EscrowTournamentState, "status" | "refundDeadline">,
+  nowMs = Date.now()
+): boolean {
+  if (state.status === "cancelled") return true;
+  return (
+    state.refundDeadline !== 0 &&
+    nowMs / 1000 >= state.refundDeadline &&
+    state.status !== "paid"
+  );
+}
+
 /** eth_call read-only ke sebuah kontrak (tanpa wallet, failover antar RPC). */
 async function ethCall(to: string, data: string): Promise<string> {
   return rpcCall<string>("eth_call", [{ to, data }, "latest"]);
