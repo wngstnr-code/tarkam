@@ -1,5 +1,13 @@
 export type Format = "single_elim" | "round_robin";
 
+/**
+ * Mode brankas hadiah:
+ * - "simple"  — dompet pool WDK milik panitia (transparansi radikal).
+ * - "escrow"  — dana dikunci smart contract TarkamEscrow (trustless: panitia
+ *   tidak pernah memegang dana; hadiah/refund ditegakkan kontrak).
+ */
+export type PoolMode = "simple" | "escrow";
+
 export interface WalletMeta {
   /** 1 per device — dompet user/panitia. */
   address: string;
@@ -22,9 +30,13 @@ export interface Tournament {
   entryFee: string;
   prizes: Prize[];
   poolAddress: string;
-  /** Seed dompet pool, terenkripsi dengan password panitia. */
+  /** Seed dompet pool, terenkripsi dengan password panitia. Kosong pada mode escrow. */
   poolEncryptedSeed: string;
-  status: "setup" | "running" | "finished";
+  /** Default "simple" (turnamen lama tanpa field ini). */
+  mode?: PoolMode;
+  /** Id turnamen di kontrak TarkamEscrow (mode escrow saja). */
+  escrowId?: number;
+  status: "setup" | "running" | "finished" | "cancelled";
   createdAt: number;
 }
 

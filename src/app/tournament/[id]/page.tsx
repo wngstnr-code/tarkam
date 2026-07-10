@@ -17,6 +17,8 @@ import { TeamList } from "@/components/tournament/TeamList";
 import { AddTeamDialog } from "@/components/tournament/AddTeamDialog";
 import { BracketView } from "@/components/tournament/BracketView";
 import { PayoutDialog } from "@/components/tournament/PayoutDialog";
+import { EscrowPayoutPanel } from "@/components/tournament/EscrowPayoutPanel";
+import { EscrowRefundPanel } from "@/components/tournament/EscrowRefundPanel";
 import { TxReceipt } from "@/components/common/TxReceipt";
 import {
   getTournament,
@@ -64,6 +66,8 @@ export default function TournamentDetailPage({
   const paidTeams = teams.filter((t) => t.paid);
   const finished = matches.length > 0 && isFinished(matches);
   const winners = matches.length > 0 ? getWinners(matches) : null;
+  const isEscrow = tournament.mode === "escrow";
+  const cancelled = tournament.status === "cancelled";
 
   async function startTournament() {
     setError(null);
@@ -116,18 +120,22 @@ export default function TournamentDetailPage({
         <Badge
           className="shrink-0 shadow-hard-xs"
           variant={
-            finished
-              ? "outline"
-              : tournament.status === "running"
-                ? "secondary"
-                : "default"
+            cancelled
+              ? "destructive"
+              : finished
+                ? "outline"
+                : tournament.status === "running"
+                  ? "secondary"
+                  : "default"
           }
         >
-          {finished
-            ? t("td.status_finished")
-            : tournament.status === "running"
-              ? t("td.status_running")
-              : t("td.status_registration")}
+          {cancelled
+            ? t("td.status_cancelled")
+            : finished
+              ? t("td.status_finished")
+              : tournament.status === "running"
+                ? t("td.status_running")
+                : t("td.status_registration")}
         </Badge>
       </header>
 
@@ -187,14 +195,23 @@ export default function TournamentDetailPage({
         </Card>
       )}
 
-      {finished && winners && (
+      {finished && winners && !cancelled && (
         <section className="space-y-4">
           <div className="border-b-2 border-foreground pb-3">
             <h2 className="font-display text-2xl">
               {t("td.champion", { name: teamById(winners.champion)?.name ?? "" })}
             </h2>
-            <p className="text-sm text-muted-foreground">{t("td.payout_desc")}</p>
+            <p className="text-sm text-muted-foreground">
+              {isEscrow ? t("td.payout_desc_escrow") : t("td.payout_desc")}
+            </p>
           </div>
+          {isEscrow ? (
+            <EscrowPayoutPanel
+              tournament={tournament}
+              rows={payoutRows}
+              payouts={payouts}
+            />
+          ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {payoutRows.map(({ prize, team }) => {
               const paid = payouts.find(
@@ -242,7 +259,13 @@ export default function TournamentDetailPage({
               );
             })}
           </div>
+          )}
         </section>
+      )}
+
+      {/* Mode escrow: zona batal (sebelum payout) / panel refund (setelah batal) */}
+      {isEscrow && tournament.status !== "finished" && (
+        <EscrowRefundPanel tournament={tournament} teams={teams} />
       )}
 
       {payoutTarget && (

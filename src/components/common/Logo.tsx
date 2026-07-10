@@ -8,12 +8,15 @@ export function Logo({
   iconClassName?: string;
 }) {
   return (
-    <div className={cn("inline-flex items-center", className)}>
+    <div className={cn("inline-flex items-center gap-2", className)}>
       <img
         src="/logo-tarkam.png"
-        alt="Tarkam Logo"
+        alt=""
         className={cn("h-8 w-auto object-contain shrink-0", iconClassName)}
       />
+      <span className="font-display leading-none tracking-wide uppercase">
+        Tarkam
+      </span>
     </div>
   );
 }

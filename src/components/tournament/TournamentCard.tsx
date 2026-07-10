@@ -7,11 +7,19 @@ import type { Tournament } from "@/types";
 
 const STATUS: Record<
   Tournament["status"],
-  { labelKey: "card.status_setup" | "card.status_running" | "card.status_finished"; className: string }
+  {
+    labelKey:
+      | "card.status_setup"
+      | "card.status_running"
+      | "card.status_finished"
+      | "card.status_cancelled";
+    className: string;
+  }
 > = {
   setup: { labelKey: "card.status_setup", className: "bg-primary text-primary-foreground" },
   running: { labelKey: "card.status_running", className: "bg-secondary text-secondary-foreground" },
   finished: { labelKey: "card.status_finished", className: "bg-muted text-muted-foreground" },
+  cancelled: { labelKey: "card.status_cancelled", className: "bg-destructive text-white" },
 };
 
 export function TournamentCard({ tournament }: { tournament: Tournament }) {

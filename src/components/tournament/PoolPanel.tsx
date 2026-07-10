@@ -1,18 +1,44 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { AddressChip } from "@/components/common/AddressChip";
 import { usePoolBalance } from "@/hooks/usePoolBalance";
+import { useEscrowState } from "@/hooks/useEscrowState";
 import { formatUSDT, parseUSDT } from "@/lib/format";
 import { addressUrl } from "@/lib/chain/config";
 import { useI18n } from "@/lib/i18n/context";
 import type { Tournament } from "@/types";
 
-/** Panel brankas ala papan skor: panel hijau lapangan gelap + garis lapangan. */
+/**
+ * Panel brankas ala papan skor: panel hijau lapangan gelap + garis lapangan.
+ * Mode simple: saldo alamat pool. Mode escrow: pot turnamen di kontrak
+ * TarkamEscrow (dana terkunci — panitia tidak memegang key pot).
+ */
 export function PoolPanel({ tournament }: { tournament: Tournament }) {
   const { t } = useI18n();
-  const { balance, error } = usePoolBalance(tournament.poolAddress);
+  const isEscrow = tournament.mode === "escrow";
+  const { balance, error: balanceError } = usePoolBalance(
+    isEscrow ? undefined : tournament.poolAddress
+  );
+  const { state: escrowState, error: escrowError } = useEscrowState(
+    isEscrow ? tournament.escrowId : undefined
+  );
   const target = parseUSDT(tournament.entryFee) * BigInt(tournament.teamCount);
+  const pot = isEscrow ? (escrowState?.pot ?? null) : balance;
+  const error = isEscrow ? escrowError : balanceError;
+  const verifyHref =
+    `/verify/${tournament.poolAddress}?name=${encodeURIComponent(tournament.name)}` +
+    (isEscrow && tournament.escrowId !== undefined
+      ? `&escrowId=${tournament.escrowId}`
+      : "");
+
+  // QR berisi URL halaman verifikasi publik (bukan alamat mentah): scan kamera
+  // HP → halaman audit langsung terbuka. Origin baru ada setelah mount.
+  const [origin, setOrigin] = useState("");
+  useEffect(() => setOrigin(window.location.origin), []);
+  const qrValue = origin ? `${origin}${verifyHref}` : tournament.poolAddress;
 
   return (
     <section
@@ -37,14 +63,19 @@ export function PoolPanel({ tournament }: { tournament: Tournament }) {
 
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="shadow-hard-sm shrink-0 self-center rounded-lg border border-foreground bg-white p-2 sm:self-auto">
-          <QRCodeSVG value={tournament.poolAddress} size={104} />
+          <QRCodeSVG value={qrValue} size={104} />
         </div>
         <div className="min-w-0 space-y-2">
           <p className="text-xs font-semibold tracking-widest text-white/70 uppercase">
-            {t("pp.label")}
+            {isEscrow ? t("pp.label_escrow") : t("pp.label")}
+            {isEscrow && (
+              <span className="ml-2 rounded border border-[#7fe0a7]/60 px-1.5 py-0.5 text-[10px] tracking-wider text-[#7fe0a7]">
+                {t("pp.escrow_badge")}
+              </span>
+            )}
           </p>
           <p className="font-mono text-4xl font-bold tabular-nums text-[#7fe0a7]">
-            {balance === null ? "—" : formatUSDT(balance)}
+            {pot === null ? "—" : formatUSDT(pot)}
             <span className="ml-2 text-base font-normal text-white/60">
               / {formatUSDT(target)} USDT
             </span>
@@ -59,8 +90,16 @@ export function PoolPanel({ tournament }: { tournament: Tournament }) {
             >
               {t("pp.audit")}
             </a>
+            <Link
+              className="text-white/70 underline underline-offset-2 hover:text-white focus-visible:ring-2 focus-visible:ring-white/60"
+              href={verifyHref}
+            >
+              {t("vf.link_label")}
+            </Link>
           </div>
-          <p className="text-xs text-white/50">{t("pp.note")}</p>
+          <p className="text-xs text-white/50">
+            {isEscrow ? t("pp.note_escrow") : t("pp.note")}
+          </p>
           {error && (
             <p className="text-xs text-amber-300">{t("pp.rpc_error", { error })}</p>
           )}

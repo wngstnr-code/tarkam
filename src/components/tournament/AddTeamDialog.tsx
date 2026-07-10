@@ -17,6 +17,7 @@ import { TxReceipt } from "@/components/common/TxReceipt";
 import { GasWarning } from "@/components/wallet/GasWarning";
 import { useWdkWallet } from "@/hooks/useWdkWallet";
 import { transferUsdt } from "@/lib/wallet/transfer";
+import { depositEscrow } from "@/lib/escrow/write";
 import { humanizeTxError } from "@/lib/wallet/errors";
 import { addTeam } from "@/lib/db/repo";
 import { parseUSDT } from "@/lib/format";
@@ -59,24 +60,38 @@ export function AddTeamDialog({
     if (!next) reset();
   }
 
+  const isEscrow = tournament.mode === "escrow";
+
   async function handlePayAndAdd() {
     setError(null);
     if (!name.trim()) return setError(t("at.err_name"));
     if (captainAddress && !/^0x[0-9a-fA-F]{40}$/.test(captainAddress.trim())) {
       return setError(t("at.err_addr"));
     }
+    // Mode escrow: alamat kapten WAJIB — jadi identitas tim di kontrak
+    // sekaligus penerima hadiah/refund yang ditegakkan on-chain.
+    if (isEscrow && !captainAddress.trim()) return setError(t("at.err_addr_required"));
     if (!password) return setError(t("at.err_pw"));
 
     setStep("paying");
     try {
-      // 1. Buka seed dompet panitia (dibuang lagi setelah dipakai di transferUsdt).
+      // 1. Buka seed dompet panitia (dibuang lagi setelah dipakai).
       const seed = await unlockSeed(password);
-      // 2. Kirim biaya daftar ke brankas turnamen. Gagal di sini = tim tidak dibuat.
-      const { hash } = await transferUsdt(
-        seed,
-        tournament.poolAddress,
-        parseUSDT(tournament.entryFee)
-      );
+      // 2. Kirim biaya daftar. Gagal di sini = tim tidak dibuat.
+      //    Escrow: approve + deposit(id, kapten) ke kontrak — dana terkunci.
+      //    Simple: transfer USDT biasa ke alamat pool.
+      const { hash } = isEscrow
+        ? await depositEscrow(
+            seed,
+            tournament.escrowId!,
+            captainAddress.trim(),
+            parseUSDT(tournament.entryFee)
+          )
+        : await transferUsdt(
+            seed,
+            tournament.poolAddress,
+            parseUSDT(tournament.entryFee)
+          );
       // 3. Baru simpan tim — sudah lunas, dengan bukti tx-nya.
       const team: Team = {
         id: crypto.randomUUID(),
@@ -129,7 +144,7 @@ export function AddTeamDialog({
                 <span className="font-mono font-semibold text-secondary tabular-nums">
                   {tournament.entryFee} USDT
                 </span>{" "}
-                {t("at.dialog_desc_2")}
+                {isEscrow ? t("at.dialog_desc_2_escrow") : t("at.dialog_desc_2")}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -145,7 +160,9 @@ export function AddTeamDialog({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="team-addr">{t("at.captain_opt")}</Label>
+                <Label htmlFor="team-addr">
+                  {isEscrow ? t("at.captain_required") : t("at.captain_opt")}
+                </Label>
                 <Input
                   id="team-addr"
                   value={captainAddress}

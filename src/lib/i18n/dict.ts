@@ -169,8 +169,8 @@ export const dict = {
   },
   "pp.audit": { en: "Audit it yourself on Etherscan →", id: "Audit sendiri di Etherscan →" },
   "pp.note": {
-    en: "Public address — anyone can monitor it without an account. Refreshes every 15 seconds.",
-    id: "Alamat publik — siapa pun bisa memantau tanpa akun. Refresh tiap 15 detik.",
+    en: "Scan the QR to open the public verify page — anyone can monitor the pot, no account needed. Refreshes every 15 seconds.",
+    id: "Scan QR untuk membuka halaman verifikasi publik — siapa pun bisa memantau pot, tanpa akun. Refresh tiap 15 detik.",
   },
   "pp.rpc_error": { en: "RPC error: {error}", id: "RPC error: {error}" },
 
@@ -397,4 +397,191 @@ export const dict = {
   // ── Address chip ────────────────────────────────────────────────────────
   "ac.view_explorer": { en: "View in explorer", id: "Lihat di explorer" },
   "ac.copy_addr": { en: "Copy address", id: "Salin alamat" },
+
+  // ── Public verify page ──────────────────────────────────────────────────
+  "vf.link_label": { en: "Public verify page", id: "Halaman verifikasi publik" },
+  "vf.title_fallback": { en: "Pool", id: "Pool" },
+  "vf.subtitle": {
+    en: "On-chain money flow — auditable by anyone, no wallet needed.",
+    id: "Aliran dana on-chain — bisa diaudit siapa saja, tanpa wallet.",
+  },
+  "vf.total_in": { en: "Total in", id: "Total masuk" },
+  "vf.total_out": { en: "Total out", id: "Total keluar" },
+  "vf.net": { en: "Net balance", id: "Saldo bersih" },
+  "vf.timeline": { en: "Timeline", id: "Linimasa" },
+  "vf.in": { en: "IN", id: "MASUK" },
+  "vf.out": { en: "OUT", id: "KELUAR" },
+  "vf.empty": { en: "No transactions yet.", id: "Belum ada transaksi." },
+  "vf.loading": { en: "Loading on-chain data…", id: "Memuat data on-chain…" },
+  "vf.error": { en: "Couldn't load data: {error}", id: "Gagal memuat data: {error}" },
+  "vf.retry": { en: "Try again", id: "Coba lagi" },
+  "vf.footer": {
+    en: "Data straight from the Sepolia blockchain — this page stores nothing.",
+    id: "Data langsung dari blockchain Sepolia — halaman ini tidak menyimpan apa pun.",
+  },
+  "vf.open_explorer": { en: "Open in explorer", id: "Buka di explorer" },
+  "vf.k_deposit": { en: "Entry fee", id: "Biaya daftar" },
+  "vf.k_prize": { en: "Prize", id: "Hadiah" },
+  "vf.k_refund": { en: "Refund", id: "Refund" },
+  "vf.k_surplus": { en: "Organizer surplus", id: "Surplus panitia" },
+
+  // ── Tournament form: mode brankas (simple vs escrow) ────────────────────
+  "tf.mode_label": { en: "Prize vault mode", id: "Mode brankas hadiah" },
+  "tf.mode_escrow": {
+    en: "Smart-contract escrow (trustless)",
+    id: "Escrow smart contract (trustless)",
+  },
+  "tf.mode_escrow_desc": {
+    en: "Funds are locked in the TarkamEscrow contract. The organizer never holds the pot — prizes and refunds are enforced on-chain.",
+    id: "Dana terkunci di kontrak TarkamEscrow. Panitia tidak pernah memegang pot — hadiah & refund ditegakkan on-chain.",
+  },
+  "tf.mode_simple": { en: "Simple pool wallet", id: "Dompet pool sederhana" },
+  "tf.mode_simple_desc": {
+    en: "A self-custodial WDK pool wallet with a public address. Radically transparent; the organizer holds the key.",
+    id: "Dompet pool self-custodial WDK dengan alamat publik. Transparan radikal; key dipegang panitia.",
+  },
+  "tf.threshold_label": { en: "Team approvals (M)", id: "Persetujuan tim (M)" },
+  "tf.threshold_note": {
+    en: "How many depositor teams must approve the payout before it can execute. 0 = instant.",
+    id: "Berapa tim penyetor yang harus menyetujui payout sebelum bisa dieksekusi. 0 = langsung.",
+  },
+  "tf.refund_label": { en: "Refund deadline (days)", id: "Deadline refund (hari)" },
+  "tf.refund_note": {
+    en: "If prizes haven't been paid by then, any team can pull its refund — even if the organizer disappears. 0 = none.",
+    id: "Bila hadiah belum dibayar sampai tenggat itu, tiap tim bisa menarik refund-nya — bahkan bila panitia menghilang. 0 = tanpa tenggat.",
+  },
+  "tf.pw_label_unlock": { en: "Your wallet password", id: "Password dompetmu" },
+  "tf.pw_placeholder_unlock": {
+    en: "Password of the wallet on this device",
+    id: "Password dompet di device ini",
+  },
+  "tf.pw_note_unlock": {
+    en: "Creating the tournament is an on-chain transaction, signed by your wallet via WDK. No pool wallet or seed backup needed — the contract holds the funds.",
+    id: "Membuat turnamen adalah transaksi on-chain, ditandatangani dompetmu via WDK. Tanpa dompet pool atau backup seed — dananya dipegang kontrak.",
+  },
+  "tf.err_pw_unlock": {
+    en: "Enter your wallet password.",
+    id: "Masukkan password dompetmu.",
+  },
+  "tf.err_threshold": {
+    en: "Approvals must be between 0 and the number of teams.",
+    id: "Persetujuan harus antara 0 dan jumlah tim.",
+  },
+  "tf.creating_escrow": {
+    en: "Creating on-chain (WDK signing)…",
+    id: "Membuat on-chain (WDK tanda tangan)…",
+  },
+
+  // ── Add team: mode escrow ───────────────────────────────────────────────
+  "at.captain_required": {
+    en: "Captain wallet (required — receives prize/refund)",
+    id: "Dompet kapten (wajib — penerima hadiah/refund)",
+  },
+  "at.err_addr_required": {
+    en: "Escrow mode requires the captain's wallet address — it is the team's on-chain identity and the enforced prize/refund recipient.",
+    id: "Mode escrow mewajibkan alamat dompet kapten — jadi identitas on-chain tim sekaligus penerima hadiah/refund yang ditegakkan kontrak.",
+  },
+  "at.dialog_desc_2_escrow": {
+    en: "will be locked in the escrow contract (approve + deposit, signed by WDK). Only prizes or refunds can ever take it out.",
+    id: "akan dikunci di kontrak escrow (approve + deposit, ditandatangani WDK). Dana hanya bisa keluar sebagai hadiah atau refund.",
+  },
+
+  // ── Team list: verifikasi escrow ────────────────────────────────────────
+  "tl.notice_escrow_no_addr": {
+    en: "{name} has no captain wallet yet — set it first, then verify the on-chain deposit.",
+    id: "{name} belum punya dompet kapten — isi dulu, lalu verifikasi setoran on-chain-nya.",
+  },
+  "tl.notice_escrow_unpaid": {
+    en: "No deposit recorded in the escrow contract for {name} yet.",
+    id: "Belum ada setoran tercatat di kontrak escrow untuk {name}.",
+  },
+
+  // ── Pool panel: mode escrow ─────────────────────────────────────────────
+  "pp.label_escrow": { en: "Escrow pot (on-chain)", id: "Pot escrow (on-chain)" },
+  "pp.escrow_badge": { en: "TRUSTLESS", id: "TRUSTLESS" },
+  "pp.note_escrow": {
+    en: "Funds are locked in the TarkamEscrow smart contract — the organizer cannot take them. They can only leave as prizes to registered teams or refunds.",
+    id: "Dana terkunci di smart contract TarkamEscrow — panitia tidak bisa mengambilnya. Dana hanya bisa keluar sebagai hadiah ke tim terdaftar atau refund.",
+  },
+
+  // ── Tournament detail: escrow ───────────────────────────────────────────
+  "td.status_cancelled": { en: "Cancelled", id: "Dibatalkan" },
+  "card.status_cancelled": { en: "Cancelled", id: "Dibatalkan" },
+  "td.payout_desc_escrow": {
+    en: "All prizes are paid by the escrow contract in a single transaction, after team approval.",
+    id: "Semua hadiah dibayar kontrak escrow dalam satu transaksi, setelah persetujuan tim.",
+  },
+
+  // ── Escrow payout panel ─────────────────────────────────────────────────
+  "ep.title": { en: "Prize payout", id: "Pembayaran hadiah" },
+  "ep.desc": {
+    en: "Propose the winners, let teams approve, then execute — the contract pays every prize in one transaction.",
+    id: "Usulkan pemenang, tunggu persetujuan tim, lalu eksekusi — kontrak membayar semua hadiah dalam satu transaksi.",
+  },
+  "ep.total": { en: "Total prizes", id: "Total hadiah" },
+  "ep.missing_addr": {
+    en: "Every winning team needs a captain wallet before the payout can be proposed.",
+    id: "Setiap tim pemenang butuh dompet kapten sebelum payout bisa diusulkan.",
+  },
+  "ep.dup_addr": {
+    en: "Two winners share the same wallet address — each team needs its own.",
+    id: "Dua pemenang memakai alamat dompet yang sama — tiap tim harus punya sendiri.",
+  },
+  "ep.pot_short": {
+    en: "The on-chain pot doesn't cover the total prizes yet.",
+    id: "Pot on-chain belum menutup total hadiah.",
+  },
+  "ep.done": { en: "Prizes paid by the contract ✓", id: "Hadiah dibayar kontrak ✓" },
+  "ep.receipt": { en: "Payout transaction", id: "Transaksi payout" },
+  "ep.approvals": { en: "Team approvals", id: "Persetujuan tim" },
+  "ep.approve_hint": {
+    en: "Approving is done from a depositor team's wallet. Once approvals reach the threshold, anyone can execute.",
+    id: "Persetujuan dilakukan dari dompet tim penyetor. Begitu mencapai ambang, siapa pun bisa mengeksekusi.",
+  },
+  "ep.approve_btn": { en: "Approve (as team)", id: "Setujui (sebagai tim)" },
+  "ep.execute_btn": { en: "Execute payout", id: "Eksekusi payout" },
+  "ep.last_tx": { en: "Last transaction", id: "Transaksi terakhir" },
+  "ep.propose_btn": { en: "Propose winners on-chain", id: "Usulkan pemenang on-chain" },
+  "ep.unlock_propose": { en: "Propose winners", id: "Usulkan pemenang" },
+  "ep.unlock_approve": { en: "Approve payout", id: "Setujui payout" },
+  "ep.unlock_execute": { en: "Execute payout", id: "Eksekusi payout" },
+  "ep.unlock_desc": {
+    en: "Enter your wallet password — WDK signs and broadcasts the transaction.",
+    id: "Masukkan password dompetmu — WDK menandatangani & mem-broadcast transaksinya.",
+  },
+  "ep.unlock_confirm": { en: "Sign & send", id: "Tanda tangan & kirim" },
+
+  // ── Escrow cancel & refund ──────────────────────────────────────────────
+  "er.cancel_title": {
+    en: "Tournament fell through?",
+    id: "Turnamen batal?",
+  },
+  "er.cancel_desc": {
+    en: "Cancelling on-chain opens refunds: every team can get its entry fee back. Irreversible.",
+    id: "Membatalkan on-chain membuka refund: tiap tim bisa mendapat biaya daftarnya kembali. Tidak bisa dibatalkan.",
+  },
+  "er.cancel_btn": { en: "Cancel & open refunds", id: "Batalkan & buka refund" },
+  "er.cancel_unlock_title": { en: "Cancel tournament", id: "Batalkan turnamen" },
+  "er.cancel_unlock_desc": {
+    en: "This on-chain action permanently opens the refund path for all teams.",
+    id: "Aksi on-chain ini membuka jalur refund untuk semua tim secara permanen.",
+  },
+  "er.cancel_confirm": { en: "Cancel on-chain", id: "Batalkan on-chain" },
+  "er.refund_title": { en: "Refunds", id: "Refund" },
+  "er.refund_desc": {
+    en: "The tournament is cancelled. Each team's entry fee goes back to its own wallet — the contract enforces the recipient, whoever presses the button.",
+    id: "Turnamen dibatalkan. Biaya daftar tiap tim kembali ke dompetnya sendiri — kontrak menegakkan penerimanya, siapa pun yang menekan tombol.",
+  },
+  "er.no_teams": {
+    en: "No paid teams with a captain wallet.",
+    id: "Belum ada tim lunas dengan dompet kapten.",
+  },
+  "er.refunded": { en: "Refunded ✓", id: "Refund terkirim ✓" },
+  "er.refund_btn": { en: "Refund {fee} USDT", id: "Refund {fee} USDT" },
+  "er.refund_unlock_title": { en: "Claim refund", id: "Tarik refund" },
+  "er.refund_unlock_desc": {
+    en: "WDK signs the claim; the funds always go to the team's wallet.",
+    id: "WDK menandatangani klaimnya; dana selalu masuk ke dompet tim.",
+  },
+  "er.refund_confirm": { en: "Sign & send", id: "Tanda tangan & kirim" },
 } satisfies Record<string, Entry>;

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/table";
 import { updateTeam, removeTeam } from "@/lib/db/repo";
 import { verifyNextPayment } from "@/lib/wallet/verifyPayment";
+import { getEscrowDeposit } from "@/lib/escrow/read";
 import { formatUSDT, shortenAddress } from "@/lib/format";
 import { useI18n } from "@/lib/i18n/context";
 import type { Team, Tournament } from "@/types";
@@ -48,19 +49,36 @@ export function TeamList({
     setBusyId(team.id);
     setNotice(null);
     try {
-      const { ok, balance, required } = await verifyNextPayment(
-        tournament,
-        paidCount
-      );
-      if (!ok) {
-        setNotice(
-          t("tl.notice_insufficient", {
-            balance: formatUSDT(balance),
-            required: formatUSDT(required),
-            name: team.name,
-          })
+      if (tournament.mode === "escrow") {
+        // Escrow: bukti bayar = setoran tim tercatat di kontrak (depositOf),
+        // dicek per alamat kapten — bukan ambang saldo pool.
+        if (!team.captainAddress) {
+          setNotice(t("tl.notice_escrow_no_addr", { name: team.name }));
+          return;
+        }
+        const deposited = await getEscrowDeposit(
+          tournament.escrowId!,
+          team.captainAddress
         );
-        return;
+        if (deposited === 0n) {
+          setNotice(t("tl.notice_escrow_unpaid", { name: team.name }));
+          return;
+        }
+      } else {
+        const { ok, balance, required } = await verifyNextPayment(
+          tournament,
+          paidCount
+        );
+        if (!ok) {
+          setNotice(
+            t("tl.notice_insufficient", {
+              balance: formatUSDT(balance),
+              required: formatUSDT(required),
+              name: team.name,
+            })
+          );
+          return;
+        }
       }
       await updateTeam(team.id, { paid: true });
     } catch (e) {
