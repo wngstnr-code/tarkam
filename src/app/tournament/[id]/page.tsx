@@ -19,6 +19,8 @@ import { BracketView } from "@/components/tournament/BracketView";
 import { PayoutDialog } from "@/components/tournament/PayoutDialog";
 import { EscrowPayoutPanel } from "@/components/tournament/EscrowPayoutPanel";
 import { EscrowRefundPanel } from "@/components/tournament/EscrowRefundPanel";
+import { AssistantPanel } from "@/components/assistant/AssistantPanel";
+import { ShareJoinLink } from "@/components/tournament/ShareJoinLink";
 import { TxReceipt } from "@/components/common/TxReceipt";
 import {
   getTournament,
@@ -29,6 +31,8 @@ import {
   updateTournament,
 } from "@/lib/db/repo";
 import { generateBracket, getWinners, isFinished } from "@/lib/bracket/engine";
+import { computePayoutRows } from "@/lib/bracket/payout";
+import { useEscrowState } from "@/hooks/useEscrowState";
 import { useI18n } from "@/lib/i18n/context";
 import type { Team } from "@/types";
 
@@ -50,6 +54,14 @@ export default function TournamentDetailPage({
     amount: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // SATU-satunya poller state escrow on-chain di halaman ini — hasilnya
+  // dibagikan ke PoolPanel/PayoutPanel/RefundPanel/AssistantPanel via props,
+  // bukan 4 polling loop identik ke RPC publik.
+  const escrow = useEscrowState(
+    tournament?.mode === "escrow" ? tournament.escrowId : undefined,
+    10_000
+  );
 
   if (tournament === undefined) return null;
   if (tournament === null || !tournament) {
@@ -82,20 +94,8 @@ export default function TournamentDetailPage({
 
   const teamById = (tid?: string) => teams.find((t) => t.id === tid);
 
-  // Baris payout: juara 1, 2 (juara 3 dibayar manual dua kali di sub II — MVP: rank 1 & 2 + kedua semifinalis kalah utk rank 3 dibagi manual)
-  const payoutRows = finished && winners
-    ? tournament.prizes
-        .map((prize) => {
-          const teamId =
-            prize.rank === 1
-              ? winners.champion
-              : prize.rank === 2
-                ? winners.runnerUp
-                : winners.semifinalLosers[0]; // MVP: juara 3 = semifinalis kalah pertama
-          return { prize, team: teamById(teamId) };
-        })
-        .filter((r): r is { prize: (typeof tournament.prizes)[0]; team: Team } => !!r.team)
-    : [];
+  // Aturan pemetaan hadiah→pemenang hidup di satu tempat (dipakai juga Wasit AI).
+  const payoutRows = computePayoutRows(tournament.prizes, teams, matches);
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 p-6 pt-10">
@@ -139,7 +139,22 @@ export default function TournamentDetailPage({
         </Badge>
       </header>
 
-      <PoolPanel tournament={tournament} />
+      <PoolPanel
+        tournament={tournament}
+        escrowState={escrow.state}
+        escrowError={escrow.error}
+      />
+
+      {/* Mode escrow: link/QR untuk kapten daftar & menyetujui dari HP-nya sendiri */}
+      {isEscrow &&
+        tournament.escrowId !== undefined &&
+        !cancelled &&
+        tournament.status !== "finished" && (
+          <ShareJoinLink
+            escrowId={tournament.escrowId}
+            tournamentName={tournament.name}
+          />
+        )}
 
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
@@ -210,6 +225,8 @@ export default function TournamentDetailPage({
               tournament={tournament}
               rows={payoutRows}
               payouts={payouts}
+              escrowState={escrow.state}
+              refreshEscrow={escrow.refresh}
             />
           ) : (
           <div className="grid gap-4 sm:grid-cols-2">
@@ -265,7 +282,22 @@ export default function TournamentDetailPage({
 
       {/* Mode escrow: zona batal (sebelum payout) / panel refund (setelah batal) */}
       {isEscrow && tournament.status !== "finished" && (
-        <EscrowRefundPanel tournament={tournament} teams={teams} />
+        <EscrowRefundPanel
+          tournament={tournament}
+          teams={teams}
+          escrowState={escrow.state}
+          refreshEscrow={escrow.refresh}
+        />
+      )}
+
+      {tournament.status !== "finished" && (
+        <AssistantPanel
+          tournament={tournament}
+          teams={teams}
+          matches={matches}
+          escrowState={escrow.state}
+          refreshEscrow={escrow.refresh}
+        />
       )}
 
       {payoutTarget && (

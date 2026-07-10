@@ -5,7 +5,7 @@ import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import { AddressChip } from "@/components/common/AddressChip";
 import { usePoolBalance } from "@/hooks/usePoolBalance";
-import { useEscrowState } from "@/hooks/useEscrowState";
+import type { EscrowTournamentState } from "@/lib/escrow/read";
 import { formatUSDT, parseUSDT } from "@/lib/format";
 import { addressUrl } from "@/lib/chain/config";
 import { useI18n } from "@/lib/i18n/context";
@@ -16,14 +16,20 @@ import type { Tournament } from "@/types";
  * Mode simple: saldo alamat pool. Mode escrow: pot turnamen di kontrak
  * TarkamEscrow (dana terkunci — panitia tidak memegang key pot).
  */
-export function PoolPanel({ tournament }: { tournament: Tournament }) {
+export function PoolPanel({
+  tournament,
+  escrowState,
+  escrowError,
+}: {
+  tournament: Tournament;
+  /** State escrow on-chain dari poller tunggal milik halaman (mode escrow saja). */
+  escrowState?: EscrowTournamentState | null;
+  escrowError?: string | null;
+}) {
   const { t } = useI18n();
   const isEscrow = tournament.mode === "escrow";
   const { balance, error: balanceError } = usePoolBalance(
     isEscrow ? undefined : tournament.poolAddress
-  );
-  const { state: escrowState, error: escrowError } = useEscrowState(
-    isEscrow ? tournament.escrowId : undefined
   );
   const target = parseUSDT(tournament.entryFee) * BigInt(tournament.teamCount);
   const pot = isEscrow ? (escrowState?.pot ?? null) : balance;

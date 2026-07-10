@@ -12,7 +12,7 @@ import {
 import { TxReceipt } from "@/components/common/TxReceipt";
 import { UnlockDialog } from "@/components/wallet/UnlockDialog";
 import { useWdkWallet } from "@/hooks/useWdkWallet";
-import { useEscrowState } from "@/hooks/useEscrowState";
+import { isRefundOpen, type EscrowTournamentState } from "@/lib/escrow/read";
 import { cancelEscrow, claimEscrowRefund } from "@/lib/escrow/write";
 import { humanizeTxError } from "@/lib/wallet/errors";
 import { updateTournament } from "@/lib/db/repo";
@@ -29,19 +29,25 @@ import type { Team, Tournament } from "@/types";
 export function EscrowRefundPanel({
   tournament,
   teams,
+  escrowState: state,
+  refreshEscrow: refresh,
 }: {
   tournament: Tournament;
   teams: Team[];
+  /** State escrow on-chain dari poller tunggal milik halaman. */
+  escrowState: EscrowTournamentState | null;
+  refreshEscrow: () => Promise<void>;
 }) {
   const { t } = useI18n();
   const { unlockSeed } = useWdkWallet();
-  const { state, refresh } = useEscrowState(tournament.escrowId, 15_000);
   const [action, setAction] = useState<
     { kind: "cancel" } | { kind: "refund"; team: Team } | null
   >(null);
   const [refundHashes, setRefundHashes] = useState<Record<string, string>>({});
 
-  const cancelled = state?.status === "cancelled";
+  // Selector bersama dengan halaman /join: refund terbuka bila dibatalkan
+  // ATAU deadline lewat (proteksi "panitia menghilang" di kontrak).
+  const refundOpen = !!state && isRefundOpen(state);
   const paidTeams = teams.filter((team) => team.paid && team.captainAddress);
 
   async function run(password: string) {
@@ -65,8 +71,8 @@ export function EscrowRefundPanel({
     }
   }
 
-  if (!cancelled) {
-    // Belum dibatalkan: tampilkan hanya tombol cancel kecil (zona hati-hati).
+  if (!refundOpen) {
+    // Refund belum terbuka: tampilkan hanya tombol cancel kecil (zona hati-hati).
     return (
       <>
         <div className="flex items-center justify-between rounded-xl border border-destructive/40 bg-destructive/5 p-4">

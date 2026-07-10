@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { TxReceipt } from "@/components/common/TxReceipt";
 import { UnlockDialog } from "@/components/wallet/UnlockDialog";
 import { useWdkWallet } from "@/hooks/useWdkWallet";
-import { useEscrowState } from "@/hooks/useEscrowState";
+import type { EscrowTournamentState } from "@/lib/escrow/read";
 import {
   proposeEscrowPayout,
   approveEscrowPayout,
@@ -38,14 +38,18 @@ export function EscrowPayoutPanel({
   tournament,
   rows,
   payouts,
+  escrowState: state,
+  refreshEscrow: refresh,
 }: {
   tournament: Tournament;
   rows: { prize: Prize; team: Team }[];
   payouts: Payout[];
+  /** State escrow on-chain dari poller tunggal milik halaman. */
+  escrowState: EscrowTournamentState | null;
+  refreshEscrow: () => Promise<void>;
 }) {
   const { t } = useI18n();
   const { unlockSeed } = useWdkWallet();
-  const { state, refresh } = useEscrowState(tournament.escrowId, 10_000);
   const [action, setAction] = useState<Action | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastHash, setLastHash] = useState<string | null>(null);
