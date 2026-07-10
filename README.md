@@ -1,5 +1,7 @@
 # ⚽ Tarkam — On-chain Prize Escrow for Grassroots Football
 
+![tests](https://img.shields.io/badge/tests-50_passing-brightgreen) ![network](https://img.shields.io/badge/network-Sepolia-blue) ![wallet](https://img.shields.io/badge/money_path-100%25_Tether_WDK-1ba27a)
+
 > **"Hadiah turnamen yang tak bisa dibawa kabur."** — *Tournament prize money that can't run away.*
 
 A self-custodial USDT prize pot for grassroots football tournaments, built entirely on **Tether WDK**. Every entry fee and every payout is a real on-chain transaction anyone can audit — no backend, no custodian, no trust required in the app itself.
@@ -41,6 +43,9 @@ Tarkam moves the prize pot into a **self-custodial USDT wallet with a public add
 - ↩️ **Refunds + dead-organizer protection (new)** — cancelling on-chain opens per-team refunds; a refund deadline lets teams pull their money back even if the organizer vanishes.
 - 🔎 **Public verify page (new)** — `/verify/<address>` renders the full on-chain money timeline (entry fees in, prizes/refunds out) for spectators: no wallet, no account, no local data.
 - 🧾 **Receipts, not promises** — every entry and payout surfaces its transaction hash, linked to Etherscan.
+- 📱 **Captain join page (new)** — every escrow tournament gets a QR/`/join` link; team captains open it on **their own phone**, see the tournament straight from the contract (no organizer data needed), pay the entry fee from their own WDK wallet, and later approve the payout from their own wallet. M-of-N approval happens across real devices, not simulated from the organizer's screen.
+- ⛽🚫 **Gasless captains (new, env-gated)** — with a bundler configured, captains on `/join` need **zero ETH**: deposit, payout approval and refunds ride WDK's EIP-7702 account-abstraction module as sponsored UserOperations — approve + deposit batched into a single UserOp. The organizer path stays classic EVM.
+- 🤖 **Wasit AI assistant (new, rule-based)** — natural-language tournament control on the organizer page ("bikin bracket", "siapkan payout", "batalkan turnamen"): commands become **draft action cards** that only execute after explicit human approval (plus password for on-chain actions). The intent parser is a pure function designed to be swapped for an on-device QVAC model.
 - ⛽ **Judge-friendly onboarding** — built-in testnet USDT faucet (open `mint`) and clear gas warnings with faucet links, so a judge can run the full money flow in minutes.
 - 🌐 **Bilingual (EN/ID)** — full English/Indonesian localization with a persistent navbar toggle, English by default.
 
@@ -56,6 +61,7 @@ Tarkam moves the prize pot into a **self-custodial USDT wallet with a public add
   - `deposit` (entry fee locked): [`0x1c4978…eccd3a`](https://sepolia.etherscan.io/tx/0x1c4978fad2ee125f7d2f35ee1d1cc0a3624c33345cbb450fbd693cbfa2eccd3a)
   - `executePayout` (prizes in one tx): [`0xd4a0b1…30f576`](https://sepolia.etherscan.io/tx/0xd4a0b152237d64cfe7ff898cdf4bc0ef1334cde6efc88d1d5f56d8550230f576)
   - cancel → `claimRefund` path: [`0x4892a3…6400e5`](https://sepolia.etherscan.io/tx/0x4892a38eabb6ef2fe1088a00fd358a5cc6a4c89401fb7da14b6adc0b836400e5)
+  - **gasless** `approve`+`deposit` in one sponsored UserOp (EIP-7702, 0 ETH from the captain): [`0xf10917…50ffb0`](https://sepolia.etherscan.io/tx/0xf1091791e03dccf66bd79ad6d53bc05df9fdacccc506a35486e71bbb9650ffb0)
 
 ## Architecture
 
@@ -91,7 +97,29 @@ All money paths go through `@tetherto/wdk-wallet-evm` — **every signature and 
 | Payment verification | on-chain balance threshold via WDK read-only account | `src/lib/wallet/verifyPayment.ts` |
 | Prize payout (simple mode) | `account.transfer({ token, recipient, amount })` → tx hash | `src/lib/wallet/transfer.ts` |
 | Escrow contract calls (create / deposit / propose / approve / execute / cancel / refund) | `account.sendTransaction({ to, data })` — WDK signs & broadcasts every escrow transaction | `src/lib/escrow/write.ts` |
+| Gasless captain actions (opt-in) | `@tetherto/wdk-wallet-evm-7702-gasless` — EIP-7702 + ERC-4337 sponsored UserOps; approve + deposit batched in one UserOp | `src/lib/wallet/wdkGasless.ts`, `src/lib/escrow/write.ts` |
 | Memory hygiene | `wallet.dispose()` after every signing operation | throughout |
+
+**Why the second WDK module, and the trade-off we accepted:** the single worst UX friction for a village team captain is needing Sepolia ETH before they can pay an entry fee in USDT. WDK's 7702 module removes it: the captain's EOA is delegated as a smart account (same address — so the escrow contract's `depositOf`/`msg.sender` checks keep working unchanged), gas is sponsored by a paymaster policy, and the approve+deposit pair becomes **one atomic UserOperation**. The trade-off: the module is beta and adds a runtime dependency on a bundler service — so it's strictly env-gated (`NEXT_PUBLIC_BUNDLER_URL`; without it the app behaves exactly as before), and it's scoped to captain actions only while the organizer path stays classic.
+
+## Judge's tour — start here
+
+The parts of the codebase we're proud of, so you don't have to go spelunking:
+
+| What | Where | Why it matters |
+|---|---|---|
+| Every escrow tx is WDK-signed | [`src/lib/escrow/write.ts#L56-L69`](https://github.com/wngstnr-code/tarkam/blob/main/src/lib/escrow/write.ts#L56-L69) | One choke point: `account.sendTransaction` via WDK; ethers only encodes calldata, never signs |
+| Gasless captain path (EIP-7702) | [`write.ts#L103-L117`](https://github.com/wngstnr-code/tarkam/blob/main/src/lib/escrow/write.ts#L103-L117) + [`#L168-L174`](https://github.com/wngstnr-code/tarkam/blob/main/src/lib/escrow/write.ts#L168-L174) | approve+deposit as one sponsored UserOp; UI gets the real on-chain tx hash, not the userOpHash |
+| One-transaction tiered payout | [`contracts/TarkamEscrow.sol#L165-L184`](https://github.com/wngstnr-code/tarkam/blob/main/contracts/TarkamEscrow.sol#L165-L184) | All prizes + transparent surplus in a single `executePayout`; no partial-payout states |
+| Dead-organizer protection | [`TarkamEscrow.sol#L199-L212`](https://github.com/wngstnr-code/tarkam/blob/main/contracts/TarkamEscrow.sol#L199-L212) | After the refund deadline, teams pull refunds with **no** organizer involvement |
+| Proof there's no withdraw path | [`test/escrow.test.mjs#L182`](https://github.com/wngstnr-code/tarkam/blob/main/test/escrow.test.mjs#L182) | ABI-surface test: the only fund-moving functions are `{deposit, executePayout, claimRefund}` — plus 27 more properties, local anvil, ~2s |
+| Real M-of-N across devices | [`src/app/join/[escrowId]/page.tsx#L78-L95`](https://github.com/wngstnr-code/tarkam/blob/main/src/app/join/%5BescrowId%5D/page.tsx#L78-L95) | Captains deposit & approve payouts from their own phones, straight against the contract |
+| Seed encryption | [`src/lib/wallet/crypto.ts#L15-L48`](https://github.com/wngstnr-code/tarkam/blob/main/src/lib/wallet/crypto.ts#L15-L48) | PBKDF2 (310k iters) → AES-GCM via Web Crypto; plaintext seed is never persisted |
+| QVAC seam, ready to swap | [`src/lib/assistant/intents.ts#L1-L10`](https://github.com/wngstnr-code/tarkam/blob/main/src/lib/assistant/intents.ts#L1-L10) | The assistant's intent parser is a pure function typed to be replaced by an on-device QVAC model |
+
+<!-- SEBELUM SUBMIT: setelah push, buka tiap link di GitHub lalu tekan "y" untuk mengunci URL ke commit (permintaan eksplisit juri semifinal). -->
+
+To try the gasless captain flow: create a free [Pimlico](https://dashboard.pimlico.io) API key + Sepolia sponsorship policy, fill `NEXT_PUBLIC_BUNDLER_URL` and `NEXT_PUBLIC_SPONSORSHIP_POLICY_ID` in `.env.local` (see `.env.local.example`), then validate end-to-end with `node scripts/spike-gasless-wdk.mjs`.
 
 Seeds are encrypted with the user's password (PBKDF2 + AES-GCM via Web Crypto) in `src/lib/wallet/crypto.ts` and shown exactly once for paper backup with a 3-word confirmation quiz.
 
@@ -105,6 +133,14 @@ Seeds are encrypted with the user's password (PBKDF2 + AES-GCM via Web Crypto) i
 - Winners are proposed by the organizer but must be **registered teams**, and the payout executes only after **M team approvals** (threshold fixed at creation; 0 = instant for demos).
 - All prize tiers + the transparent organizer surplus are paid in **one transaction**.
 - `cancel` opens per-team refunds; after the **refund deadline**, teams can pull refunds *without* the organizer — protection against a vanished committee.
+
+**Property test suite — 28 tests passing.** Every guarantee above is enforced by tests in [`test/escrow.test.mjs`](test/escrow.test.mjs), run against a local [anvil](https://getfoundry.sh) EVM (no network, deterministic, ~2s): no organizer-withdraw path exists in the ABI, winners must be depositor teams, double deposits/approvals/refunds revert, payouts pay the exact pre-announced amounts in one transaction, and the dead-organizer deadline works — but stops applying once prizes are paid.
+
+On top of the contract suite, the Wasit AI intent parser has **22 unit tests** ([`test/intents.test.mts`](test/intents.test.mts)) covering id/en phrase variants, every guard reason, and the safety property that free-form money requests ("send all funds to my account") can never map to an executable action — **50 tests total**.
+
+```bash
+npm test   # requires Foundry's anvil on PATH
+```
 
 ## How it maps to the judging criteria
 
@@ -134,10 +170,9 @@ Everything runs on **Sepolia** with a demo ERC-20 (a permanent banner says so in
 
 ## Roadmap
 
-Shipped since the round of 16: ✅ trustless contract escrow with M-of-N approvals, ✅ public verify page, ✅ tiered one-transaction payouts, ✅ refunds + dead-organizer deadline. Next:
+Shipped since the round of 16: ✅ trustless contract escrow with M-of-N approvals, ✅ public verify page, ✅ tiered one-transaction payouts, ✅ refunds + dead-organizer deadline, ✅ captain-side `/join` flows (deposit & approve from the captain's own phone), ✅ Wasit AI assistant (rule-based, draft actions + human approval), ✅ 50-test suite (28 contract properties + 22 assistant-parser units), ✅ gasless captain flow (EIP-7702 sponsored UserOps), ✅ verified contract source on Etherscan. Next:
 
-- **Wasit AI on-device (QVAC + Electron)** — natural-language tournament control ("bikin bracket 16 tim", "bayar hadiah juara"), drafted payouts with human-in-the-loop approval; runs fully offline. QVAC has no browser target, so this ships as an Electron wrap of this exact UI.
-- **Captain-side app flows** — teams deposit/approve payouts from their own devices (the contract already supports it; the UI today centres the organizer/judge device).
+- **Wasit AI on-device (QVAC + Electron)** — swap the assistant's rule-based intent parser (`src/lib/assistant/intents.ts`, a pure function built as the seam) for a fully offline QVAC model. QVAC has no browser target, so this ships as an Electron wrap of this exact UI.
 - **Off-ramp to rupiah** — e-wallet partners for cashing out prizes.
 
 ## Tech stack
