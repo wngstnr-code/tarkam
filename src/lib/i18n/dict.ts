@@ -511,6 +511,20 @@ export const dict = {
     id: "Belum ada setoran tercatat di kontrak escrow untuk {name}.",
   },
 
+  // ── Depositor on-chain yang belum terdaftar sebagai tim lokal ───────────
+  "nd.title": {
+    en: "{n} new on-chain deposit(s) without a team name",
+    id: "{n} setoran on-chain baru belum punya nama tim",
+  },
+  "nd.desc": {
+    en: "These captains paid via the join link. Their deposit is already locked in the contract — just give each team a name.",
+    id: "Kapten ini bayar lewat link join. Setorannya sudah terkunci di kontrak — tinggal beri nama timnya.",
+  },
+  "nd.name_placeholder": { en: "Team name", id: "Nama tim" },
+  "nd.add_btn": { en: "Add team", id: "Tambahkan tim" },
+  "nd.adding": { en: "Adding…", id: "Menambahkan…" },
+  "nd.err_name": { en: "Team name is required.", id: "Nama tim wajib diisi." },
+
   // ── Pool panel: mode escrow ─────────────────────────────────────────────
   "pp.label_escrow": { en: "Escrow pot (on-chain)", id: "Pot escrow (on-chain)" },
   "pp.escrow_badge": { en: "TRUSTLESS", id: "TRUSTLESS" },

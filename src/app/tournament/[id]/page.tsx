@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { PoolPanel } from "@/components/tournament/PoolPanel";
 import { TeamList } from "@/components/tournament/TeamList";
+import { UnknownDepositors } from "@/components/tournament/UnknownDepositors";
 import { AddTeamDialog } from "@/components/tournament/AddTeamDialog";
 import { BracketView } from "@/components/tournament/BracketView";
 import { PayoutDialog } from "@/components/tournament/PayoutDialog";
@@ -177,7 +178,14 @@ export default function TournamentDetailPage({
             />
           )}
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {isEscrow && tournament.status === "setup" && (
+            <UnknownDepositors
+              tournament={tournament}
+              teams={teams}
+              escrowTeamCount={escrow.state?.teamCount}
+            />
+          )}
           <TeamList
             tournament={tournament}
             teams={teams}

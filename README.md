@@ -1,6 +1,6 @@
 # ⚽ Tarkam — On-chain Prize Escrow for Grassroots Football
 
-![tests](https://img.shields.io/badge/tests-50_passing-brightgreen) ![network](https://img.shields.io/badge/network-Sepolia-blue) ![wallet](https://img.shields.io/badge/money_path-100%25_Tether_WDK-1ba27a)
+![tests](https://img.shields.io/badge/tests-51_passing-brightgreen) ![network](https://img.shields.io/badge/network-Sepolia-blue) ![wallet](https://img.shields.io/badge/money_path-100%25_Tether_WDK-1ba27a)
 
 > **"Hadiah turnamen yang tak bisa dibawa kabur."** — *Tournament prize money that can't run away.*
 
@@ -136,7 +136,7 @@ Seeds are encrypted with the user's password (PBKDF2 + AES-GCM via Web Crypto) i
 
 **Property test suite — 28 tests passing.** Every guarantee above is enforced by tests in [`test/escrow.test.mjs`](test/escrow.test.mjs), run against a local [anvil](https://getfoundry.sh) EVM (no network, deterministic, ~2s): no organizer-withdraw path exists in the ABI, winners must be depositor teams, double deposits/approvals/refunds revert, payouts pay the exact pre-announced amounts in one transaction, and the dead-organizer deadline works — but stops applying once prizes are paid.
 
-On top of the contract suite, the Wasit AI intent parser has **22 unit tests** ([`test/intents.test.mts`](test/intents.test.mts)) covering id/en phrase variants, every guard reason, and the safety property that free-form money requests ("send all funds to my account") can never map to an executable action — **50 tests total**.
+On top of the contract suite, the Wasit AI intent parser has **23 unit tests** ([`test/intents.test.mts`](test/intents.test.mts)) covering id/en phrase variants, every guard reason, and the safety property that free-form money requests ("send all funds to my account") can never map to an executable action — **51 tests total**.
 
 ```bash
 npm test   # requires Foundry's anvil on PATH
@@ -170,7 +170,7 @@ Everything runs on **Sepolia** with a demo ERC-20 (a permanent banner says so in
 
 ## Roadmap
 
-Shipped since the round of 16: ✅ trustless contract escrow with M-of-N approvals, ✅ public verify page, ✅ tiered one-transaction payouts, ✅ refunds + dead-organizer deadline, ✅ captain-side `/join` flows (deposit & approve from the captain's own phone), ✅ Wasit AI assistant (rule-based, draft actions + human approval), ✅ 50-test suite (28 contract properties + 22 assistant-parser units), ✅ gasless captain flow (EIP-7702 sponsored UserOps), ✅ verified contract source on Etherscan. Next:
+Shipped since the round of 16: ✅ trustless contract escrow with M-of-N approvals, ✅ public verify page, ✅ tiered one-transaction payouts, ✅ refunds + dead-organizer deadline, ✅ captain-side `/join` flows (deposit & approve from the captain's own phone), ✅ Wasit AI assistant (rule-based, draft actions + human approval), ✅ 51-test suite (28 contract properties + 23 assistant-parser units), ✅ gasless captain flow (EIP-7702 sponsored UserOps), ✅ verified contract source on Etherscan. Next:
 
 - **Wasit AI on-device (QVAC + Electron)** — swap the assistant's rule-based intent parser (`src/lib/assistant/intents.ts`, a pure function built as the seam) for a fully offline QVAC model. QVAC has no browser target, so this ships as an Electron wrap of this exact UI.
 - **Off-ramp to rupiah** — e-wallet partners for cashing out prizes.

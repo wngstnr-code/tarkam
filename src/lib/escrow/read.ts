@@ -60,6 +60,13 @@ export async function getEscrowTournament(
   };
 }
 
+/** Daftar alamat kapten yang sudah menyetor di sebuah turnamen escrow. */
+export async function getEscrowTeams(escrowId: number): Promise<string[]> {
+  const data = ESCROW_IFACE.encodeFunctionData("getTeams", [escrowId]);
+  const raw = await ethCall(ESCROW_ADDRESS, data);
+  return [...(ESCROW_IFACE.decodeFunctionResult("getTeams", raw)[0] as string[])];
+}
+
 /** Setoran sebuah tim (0 = belum bayar / sudah refund). */
 export async function getEscrowDeposit(
   escrowId: number,
