@@ -2,13 +2,47 @@
 // kontrak via solc (pola sama seperti scripts/deploy-*.mjs), dan util kecil.
 
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import solc from "solc";
 import { ethers } from "ethers";
 
-const ANVIL_BIN = process.env.ANVIL_BIN ?? "/Users/mac/.foundry/bin/anvil";
 const ROOT = path.resolve(import.meta.dirname, "..");
+
+/**
+ * Cari binary anvil tanpa mengunci path absolut ke satu mesin:
+ * 1. env `ANVIL_BIN` (paling eksplisit — dipakai CI atau instalasi tak lazim),
+ * 2. `anvil` di PATH (kasus umum bila shell sudah di-setup foundryup),
+ * 3. lokasi default foundryup: `~/.foundry/bin/anvil` (PATH sering belum
+ *    ter-load di shell non-interaktif, jadi ini fallback yang sah).
+ * Bila tak ketemu, lempar pesan yang menyebutkan cara memasang.
+ */
+function resolveAnvilBin() {
+  if (process.env.ANVIL_BIN) return process.env.ANVIL_BIN;
+
+  const exeName = process.platform === "win32" ? "anvil.exe" : "anvil";
+  const candidates = (process.env.PATH ?? "")
+    .split(path.delimiter)
+    .filter(Boolean)
+    .map((dir) => path.join(dir, exeName));
+  candidates.push(path.join(os.homedir(), ".foundry", "bin", exeName));
+
+  for (const candidate of candidates) {
+    try {
+      fs.accessSync(candidate, fs.constants.X_OK);
+      return candidate;
+    } catch {
+      // lanjut ke kandidat berikutnya
+    }
+  }
+
+  throw new Error(
+    "anvil tidak ditemukan. Pasang Foundry (https://getfoundry.sh):\n" +
+      "  curl -L https://foundry.paradigm.xyz | bash && foundryup\n" +
+      "atau tunjuk langsung: ANVIL_BIN=/path/ke/anvil npm test"
+  );
+}
 
 // Mnemonic default anvil ("test test test test test test test test test test test junk").
 export const ANVIL_MNEMONIC = "test test test test test test test test test test test junk";
@@ -36,9 +70,10 @@ export function compileContract(fileName, contractName) {
 
 /** Spawn anvil di port yang diberikan, tunggu sampai RPC siap. */
 export async function startAnvil() {
+  const anvilBin = resolveAnvilBin();
   const port = 8600 + Math.floor(Math.random() * 1000);
   const child = spawn(
-    ANVIL_BIN,
+    anvilBin,
     ["--port", String(port), "--silent", "--mnemonic", ANVIL_MNEMONIC, "--accounts", "10"],
     { stdio: ["ignore", "ignore", "pipe"] }
   );
@@ -46,6 +81,13 @@ export async function startAnvil() {
   let stderrBuf = "";
   child.stderr?.on("data", (d) => {
     stderrBuf += d.toString();
+  });
+
+  // spawn gagal (mis. ENOENT) dilaporkan lewat event async, bukan exitCode —
+  // tanpa handler ini test hanya menggantung sampai timeout tanpa sebab jelas.
+  let spawnError = null;
+  child.on("error", (err) => {
+    spawnError = err;
   });
 
   // cacheTimeout: -1 penting — AbstractProvider ethers v6 secara default
@@ -64,6 +106,9 @@ export async function startAnvil() {
   const deadline = Date.now() + 15000;
   let ready = false;
   while (Date.now() < deadline) {
+    if (spawnError) {
+      throw new Error(`anvil gagal dijalankan (${anvilBin}): ${spawnError.message}`);
+    }
     if (child.exitCode !== null) {
       throw new Error(`anvil keluar dini (kode ${child.exitCode}): ${stderrBuf}`);
     }
