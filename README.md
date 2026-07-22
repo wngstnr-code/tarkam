@@ -6,7 +6,7 @@
 
 A self-custodial USDT prize pot for grassroots football tournaments, built entirely on **Tether WDK**. Every entry fee and every payout is a real on-chain transaction anyone can audit — no backend, no custodian, no trust required in the app itself.
 
-**Tether Developers Cup — WDK track.** Built by **Team Indonesia 🇮🇩**.
+🏆 **Overall Winner ($5,000) & WDK Track Winner ($1,000)** at the **Tether Developers Cup** (Total Prize: $6,000). Built by **Team Indonesia 🇮🇩**.
 Bilingual UI (English 🇬🇧 / Indonesian 🇮🇩, toggle in the navbar, English by default).
 
 ---
